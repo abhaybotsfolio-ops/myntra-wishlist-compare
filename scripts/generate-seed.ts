@@ -687,6 +687,14 @@ for (const [sku, size] of OUT_OF_STOCK_IN_RECOMMENDED) {
   INVENTORY[sku][size] = 0;
 }
 
+// Exactly 1 SKU fully out of stock (every size, not just one) — the
+// wishlist screen's "Out of Stock" filter needs a real match to be
+// demonstrable. Highlander is deliberately unsignalled (see D2 above), so
+// zeroing it out doesn't interact with any recommended-size / stock-event
+// scripting on the compare screen.
+const FULLY_OUT_OF_STOCK_SKU = "shirt-highlander-001";
+for (const size of SHIRT_SIZES) INVENTORY[FULLY_OUT_OF_STOCK_SKU][size] = 0;
+
 // ---------------------------------------------------------------------------
 // 7. Stock events — deterministic, target signalled brands' recommended
 // sizes on SKUs currently *available* at seed time, so the scripted event
@@ -766,6 +774,9 @@ function assertInvariants() {
   if (lowStockPairs < 3) errors.push(`expected >=3 low-stock (1-2 unit) pairs, got ${lowStockPairs}`);
   if (outOfStockInRecommended < 2) errors.push(`expected >=2 SKUs out of stock in their recommended size, got ${outOfStockInRecommended}`);
 
+  const fullyOutOfStock = PRODUCTS.filter((p) => p.sizes.every((size) => INVENTORY[p.id][size] === 0));
+  if (fullyOutOfStock.length < 1) errors.push("expected >=1 SKU fully out of stock (every size) for the wishlist Out-of-Stock filter");
+
   if (errors.length) {
     throw new Error("Seed invariant check failed:\n  " + errors.join("\n  "));
   }
@@ -773,7 +784,7 @@ function assertInvariants() {
   console.log(`  16 products (9 shirts / 7 pants), price ${Math.min(...prices)}-${Math.max(...prices)}, rating ${Math.min(...ratings)}-${Math.max(...ratings)}`);
   console.log(`  review bands: ${JSON.stringify(bandCounts)}, total reviews: ${REVIEWS.length}`);
   console.log(`  unsignalled brands: ${[...unsignalledBrands].join(", ")}`);
-  console.log(`  low-stock pairs: ${lowStockPairs}, out-of-stock-in-recommended: ${outOfStockInRecommended}`);
+  console.log(`  low-stock pairs: ${lowStockPairs}, out-of-stock-in-recommended: ${outOfStockInRecommended}, fully-out-of-stock: ${fullyOutOfStock.map((p) => p.id).join(", ")}`);
 }
 
 assertInvariants();
@@ -849,7 +860,7 @@ function shirtSvg(brand: string, title: string, colors: { bg: string; fg: string
          <circle cx="0" cy="5" r="2.8" fill="${line}"/>
          <rect x="-52" y="0" width="40" height="52" rx="4" fill="none" stroke="${line}" stroke-width="1.6" opacity="0.6"/>
        </g>`;
-  return svgWrap(svgBody, brand, title);
+  return svgWrap(svgBody);
 }
 
 function pantsSvg(brand: string, title: string, colors: { bg: string; fg: string; line: string }, crop: "full" | "detail"): string {
@@ -876,19 +887,19 @@ function pantsSvg(brand: string, title: string, colors: { bg: string; fg: string
          <rect x="-96" y="-150" width="10" height="20" rx="2" fill="${line}" opacity="0.5"/>
          <rect x="86" y="-150" width="10" height="20" rx="2" fill="${line}" opacity="0.5"/>
        </g>`;
-  return svgWrap(svgBody, brand, title);
+  return svgWrap(svgBody);
 }
 
-function svgWrap(body: string, brand: string, title: string): string {
+// No baked-in brand/title text (there was one, dropped): the wishlist tile
+// and compare card both already render brand/title as real UI text
+// alongside the image, and once the wishlist tile grew its own bottom-left
+// overlay (the rating badge), image-baked text in that same corner visibly
+// bled through it. Real product photography doesn't carry a watermark
+// either way, so the plain silhouette is the more honest placeholder.
+function svgWrap(body: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
     ${body}
-    <text x="40" y="740" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="26" font-weight="700" letter-spacing="0.5" fill="#282c3f">${escapeXml(brand.toUpperCase())}</text>
-    <text x="40" y="770" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="20" fill="#535766">${escapeXml(title)}</text>
   </svg>`;
-}
-
-function escapeXml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 async function generateImages() {

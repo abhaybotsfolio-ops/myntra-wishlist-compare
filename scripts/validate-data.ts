@@ -149,6 +149,11 @@ if (products && reviews && inventory && sizeProfile && stockEvents && summaries)
   }
   if (lowStockPairs < 3) fail(`expected >=3 low-stock (1-2 unit) pairs, got ${lowStockPairs}`);
 
+  const fullyOutOfStock = products.filter((p) => p.sizes.every((size) => inventory[p.id]?.[size] === 0));
+  if (fullyOutOfStock.length < 1) {
+    fail("expected >=1 SKU fully out of stock (every size) for the wishlist Out-of-Stock filter");
+  }
+
   // Size profile: >=2 unsignalled brands, one per category; signalled
   // brands single-category (DECISIONS.md D2).
   const signalByBrand = new Map(sizeProfile.signals.map((s) => [s.brand, s]));
