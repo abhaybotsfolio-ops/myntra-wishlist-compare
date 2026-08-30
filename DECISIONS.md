@@ -109,6 +109,36 @@ alike, and naturally keeps counting correctly through a backgrounded tab (RULES/
 "persists if the user backgrounds the app and returns" applies to elapsed real time here too,
 not just to the deck contents).
 
+## D5 — `draggable={false}` on every product Image (found via Playwright, not a product decision, but worth recording)
+
+Not a PRD-silence judgement call like the others — a real bug found while writing the Phase 9
+acceptance tests, worth recording because the symptom was badly misleading and the fix is easy
+to accidentally revert.
+
+**Symptom:** `tests/e2e/r3-deck.spec.ts` 3.2 (drag-swipe) hung for the full 30s test timeout.
+Root-caused by bisection: a synthetic `mouse.down()` followed by `mouse.move()` over the
+card's `next/image` never resolved — reproduced with `drag` removed from the `motion.div`
+entirely, so it had nothing to do with framer-motion, the drag gesture code, or anything in
+this codebase's own logic. `<img>` elements are natively draggable in every browser (the
+built-in "drag this image out" affordance); starting a mouse-held drag on top of one hands the
+gesture to the browser's native HTML5 drag-and-drop system instead of firing the ordinary
+pointer-move events framer-motion (and Playwright's synthetic mouse simulation) expect, and
+the two never hand back off to each other.
+
+**Fix:** `draggable={false}` on every `<Image>` in the app (compare card, wishlist tile, PDP),
+not only the compare card where R3's swipe lives — the same native-drag conflict would await
+anyone who later added a gesture near any of the others. Confirmed the fix by bisecting further:
+removing `drag="x"` alone did *not* unblock the hang; adding `draggable={false}` did, both with
+and without `drag="x"` present.
+
+**Why this stayed hidden through all of Phase 5-6's manual browser testing:** touch input
+(what a real phone sends, and what most of this session's interactive testing used) doesn't
+trigger HTML5 drag-and-drop the way a held mouse button does — RULES E7's "must work with a
+trackpad on desktop" is exactly the case that exposes it, and is also exactly the case an
+E2E suite using `page.mouse` exercises. A demo done entirely by touch/swipe would never have
+surfaced this; anyone actually using a trackpad or mouse to drag a card would have hit a dead
+gesture every time.
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user

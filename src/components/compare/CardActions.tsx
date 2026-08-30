@@ -47,7 +47,13 @@ export function CardActions({
           </>
         )}
       </Button>
-      {disabledReason && <Reason className="-mt-1">{disabledReason}</Reason>}
+      {/* Fixed-height slot regardless of whether a reason is present —
+          RULES E1/E2's row-alignment guarantee applies to this row like
+          any other; a reason line that only sometimes exists would make
+          this specific card's actions row taller than its neighbors'. */}
+      <Reason className={`-mt-1 h-3.5 ${disabledReason ? "" : "invisible"}`}>
+        {disabledReason || "placeholder"}
+      </Reason>
 
       <div className="flex items-center justify-between">
         <Link

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, animate, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product, Summary } from "../../../data/schema.ts";
@@ -65,6 +65,13 @@ export function CompareDeck({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, width]);
 
+  // Stable reference, not a fresh object literal every render — framer's
+  // own recommended practice for dragConstraints.
+  const dragConstraints = useMemo(
+    () => ({ left: -(width * (products.length - 1)), right: 0 }),
+    [width, products.length],
+  );
+
   function goTo(next: number, method: "drag" | "tap" | "keyboard") {
     const clamped = Math.max(0, Math.min(products.length - 1, next));
     if (clamped !== index) {
@@ -104,11 +111,16 @@ export function CompareDeck({
           style={{ x }}
           drag="x"
           dragElastic={0.12}
-          dragConstraints={{ left: -(width * (products.length - 1)), right: 0 }}
+          dragConstraints={dragConstraints}
           onDragEnd={handleDragEnd}
         >
           {products.map((product, i) => (
-            <div key={product.id} className="h-full shrink-0 px-1" style={{ width }}>
+            <div
+              key={product.id}
+              data-card-active={i === index}
+              className="h-full shrink-0 px-1"
+              style={{ width }}
+            >
               <CompareCard
                 product={product}
                 isActive={i === index}
@@ -130,7 +142,7 @@ export function CompareDeck({
           type="button"
           aria-label="Previous item"
           onClick={() => goTo(index - 1, "tap")}
-          className="absolute left-0 top-0 z-10 flex h-full w-8 items-center justify-start text-ink-faint"
+          className="absolute left-0 top-0 z-10 flex h-full w-11 items-center justify-start text-ink-faint"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -140,7 +152,7 @@ export function CompareDeck({
           type="button"
           aria-label="Next item"
           onClick={() => goTo(index + 1, "tap")}
-          className="absolute right-0 top-0 z-10 flex h-full w-8 items-center justify-end text-ink-faint"
+          className="absolute right-0 top-0 z-10 flex h-full w-11 items-center justify-end text-ink-faint"
         >
           <ChevronRight className="h-5 w-5" />
         </button>

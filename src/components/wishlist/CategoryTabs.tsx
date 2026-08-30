@@ -34,7 +34,7 @@ export function CategoryTabs({
             disabled={locked}
             onClick={() => onChange(tab.value)}
             className={[
-              "min-h-9 rounded-full px-3.5 text-[13px] font-semibold transition-colors",
+              "min-h-11 rounded-full px-3.5 text-[13px] font-semibold transition-colors",
               isActive ? "bg-ink text-white" : "bg-canvas text-ink-muted",
               locked ? "pointer-events-none opacity-50" : "",
             ].join(" ")}

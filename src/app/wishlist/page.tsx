@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PRODUCTS } from "@/lib/catalog";
 import { useAppStore, filterByCategory, type ViewCategory } from "@/lib/store";
@@ -42,14 +42,41 @@ export default function WishlistPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, hasHydrated]);
 
+  // R2 (2.7): entering/exiting selection mode swaps every tile's wrapper
+  // element (Link <-> button — the two modes need genuinely different
+  // semantics, not just different styling), which forces React to
+  // unmount and remount the whole grid rather than reconciling it in
+  // place. That transition was found to reset scrollTop to 0 (verified
+  // live, not just suspected) — content shifting above the grid (the
+  // CompareCTA block, present only in browse mode) is enough to make the
+  // browser clamp scroll position during the swap and never restore it.
+  // Explicit save-before/restore-after in a layout effect (so it applies
+  // before paint, no visible flash) is more robust than relying on the
+  // browser to preserve it implicitly.
+  const savedScroll = useRef(0);
+  function saveScroll() {
+    const el = document.getElementById("app-scroll");
+    if (el) savedScroll.current = el.scrollTop;
+  }
+  useLayoutEffect(() => {
+    const el = document.getElementById("app-scroll");
+    if (el) el.scrollTop = savedScroll.current;
+  }, [mode]);
+
   function handleCategoryChange(c: ViewCategory) {
     if (mode === "selecting") return; // R2: tabs locked while selecting
     setActiveCategory(c);
   }
 
   function handleCompareTap() {
+    saveScroll();
     track("compare_tapped", { category: activeCategory, eligibleCount: visibleIds.length });
     enterSelectionMode();
+  }
+
+  function handleCancel() {
+    saveScroll();
+    cancelSelectionMode();
   }
 
   function handleConfirm() {
@@ -118,7 +145,7 @@ export default function WishlistPage() {
         <StickyCompareBar
           count={selection.length}
           onConfirm={handleConfirm}
-          onCancel={cancelSelectionMode}
+          onCancel={handleCancel}
         />
       )}
     </div>

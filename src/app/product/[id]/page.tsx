@@ -50,6 +50,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           src={product.images[0]}
           alt={`${product.brand} ${product.title}`}
           fill
+          draggable={false}
           sizes="(min-width: 768px) 390px, 100vw"
           className="object-cover"
           priority

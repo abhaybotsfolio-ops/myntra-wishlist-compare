@@ -96,6 +96,7 @@ export function CompareCard({
               src={product.images[0]}
               alt={`${product.brand} ${product.title}`}
               fill
+              draggable={false}
               sizes="(min-width: 768px) 366px, 90vw"
               className="object-cover"
               priority={isActive}
@@ -156,16 +157,28 @@ export function CompareCard({
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface shadow-card">
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {ATTRIBUTE_ROWS.filter((r) => r.key !== "actions").map(({ key, minH }) => (
-          <div
-            key={key}
-            data-row={key}
-            style={{ minHeight: minH }}
-            className="flex flex-col justify-center border-b border-line px-3 py-2 last:border-0"
-          >
-            {renderRow(key)}
-          </div>
-        ))}
+        {ATTRIBUTE_ROWS.filter((r) => r.key !== "actions").map(({ key, minH }) => {
+          // "size" and "reviews" are the two rows whose content genuinely
+          // varies in length per product (a longer basis string, a
+          // longer/shorter theme list) — RULES E1/E2's alignment guarantee
+          // only holds if that variance can never push a row taller than
+          // its neighbors' on another card, so these two also cap at minH
+          // with overflow hidden. Every other row's content is
+          // structurally fixed-shape already (line-clamped title, a
+          // single price/rating line, a single fit/material value) and
+          // stays pure min-height, per the spec's literal wording.
+          const capped = key === "size" || key === "reviews";
+          return (
+            <div
+              key={key}
+              data-row={key}
+              style={capped ? { minHeight: minH, maxHeight: minH, overflow: "hidden" } : { minHeight: minH }}
+              className="flex flex-col justify-center border-b border-line px-3 py-2 last:border-0"
+            >
+              {renderRow(key)}
+            </div>
+          );
+        })}
       </div>
       <div
         data-row="actions"

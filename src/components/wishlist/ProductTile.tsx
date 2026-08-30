@@ -38,6 +38,7 @@ export function ProductTile({
           src={product.images[0]}
           alt=""
           fill
+          draggable={false}
           sizes="(min-width: 768px) 175px, 45vw"
           className="object-cover"
         />
