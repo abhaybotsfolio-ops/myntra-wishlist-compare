@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Myntra Wishlist Comparison — design tokens.
+ * Source of truth: .claude/skills/myntra-ui/SKILL.md
+ *
+ * Deliberately no dark-mode block: Myntra is a bright, flat, high-density
+ * retail UI, and the myntra-ui skill rules dark mode out explicitly.
+ */
+@theme {
+  --color-brand: #ff3f6c; /* primary CTA, active states */
+  --color-brand-dark: #e0234e; /* pressed */
+  --color-brand-tint: #fff0f4; /* selected backgrounds */
+  --color-ink: #282c3f; /* primary text — Myntra's near-navy, not black */
+  --color-ink-muted: #535766; /* secondary text */
+  --color-ink-faint: #94969f; /* tertiary, struck MRP, metadata */
+  --color-line: #eaeaec; /* hairlines, dividers, card borders */
+  --color-surface: #ffffff;
+  --color-canvas: #f5f5f6; /* page background behind cards */
+  --color-discount: #ff905a; /* discount % */
+  --color-positive: #03a685; /* in stock, rating pill, positive theme */
+  --color-warning: #f2a03d; /* low stock */
+  --color-negative: #d43d51; /* unavailable, negative theme */
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+
+  --shadow-card: 0 2px 8px rgb(40 44 63 / 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Respect reduced-motion globally; components still opt into their own
+   restrained motion, this just removes anything that slipped through. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
