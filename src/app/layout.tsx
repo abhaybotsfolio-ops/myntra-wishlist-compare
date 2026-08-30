@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { PhoneFrame } from "@/components/ui/PhoneFrame";
 import { ToastProvider } from "@/components/ui/Toast";
+import { StoreHydration } from "@/components/ui/StoreHydration";
 
 export const metadata: Metadata = {
   title: "Wishlist — Myntra",
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <StoreHydration />
         <PhoneFrame>
           <ToastProvider>{children}</ToastProvider>
         </PhoneFrame>
