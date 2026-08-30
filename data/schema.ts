@@ -26,6 +26,7 @@ export const ProductSchema = z.object({
   material: z.string(),
   sizes: z.array(z.string()),
   savedAt: z.string(), // ISO — wishlist ordering
+  deliveryEstimate: z.string(), // "Delivery by Tue, Sep 2" — fabricated-but-deterministic, seed time only
 });
 export type Product = z.infer<typeof ProductSchema>;
 export const ProductsFileSchema = z.array(ProductSchema);

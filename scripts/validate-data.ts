@@ -83,6 +83,12 @@ if (products && reviews && inventory && sizeProfile && stockEvents && summaries)
   const ratings = products.map((p) => p.rating);
   if (Math.max(...ratings) - Math.min(...ratings) < 1.0) fail("rating spread under 1.0 — too clustered");
 
+  for (const p of products) {
+    if (!/^Delivery by /.test(p.deliveryEstimate)) {
+      fail(`${p.id} deliveryEstimate malformed: "${p.deliveryEstimate}"`);
+    }
+  }
+
   // Review-count-and-sentiment-derived bands, matching catalog-seed skill's table.
   const reviewsBySku = new Map<string, typeof reviews>();
   for (const r of reviews) {

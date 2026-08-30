@@ -41,6 +41,15 @@ function mulberry32(seed: number) {
 }
 const rand = mulberry32(20260830); // today's date, arbitrary but fixed
 
+// A second, independently-seeded PRNG used only for delivery estimates —
+// isolated from `rand` so adding a new per-product field here never shifts
+// any other file's random draws (reviews, inventory, stock events). Every
+// generated file besides products.json stays byte-identical across a
+// regeneration that only touches delivery estimates. See DECISIONS.md D7.
+const deliveryRand = mulberry32(20260830 + 17);
+
+const ANCHOR_MS = new Date("2026-08-30T09:00:00Z").getTime();
+
 function pick<T>(arr: readonly T[]): T {
   return arr[Math.floor(rand() * arr.length)];
 }
@@ -51,9 +60,19 @@ function shuffledCycle<T>(arr: readonly T[], n: number): T[] {
   return Array.from({ length: n }, (_, i) => arr[(i + offset) % arr.length]);
 }
 function daysAgoISO(days: number, hourJitter = true): string {
-  const base = new Date("2026-08-30T09:00:00Z").getTime();
   const jitter = hourJitter ? Math.floor(rand() * 20 * 3600_000) : 0;
-  return new Date(base - days * 86_400_000 - jitter).toISOString();
+  return new Date(ANCHOR_MS - days * 86_400_000 - jitter).toISOString();
+}
+
+// Fabricated-but-deterministic, same honesty class as every other seeded
+// field — generated once at seed time, never computed per-render. Not a
+// real courier estimate; just enough texture for the wishlist tile to read
+// as authentic (CLAUDE.md §4).
+function formatDeliveryEstimate(daysFromAnchor: number): string {
+  const d = new Date(ANCHOR_MS + daysFromAnchor * 86_400_000);
+  const weekday = d.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
+  const month = d.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+  return `Delivery by ${weekday}, ${month} ${d.getUTCDate()}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -130,6 +149,7 @@ const PRODUCTS: Product[] = PRODUCT_SEEDS.map((p) => ({
   material: p.material,
   sizes: p.category === "shirts" ? SHIRT_SIZES : PANT_SIZES,
   savedAt: daysAgoISO(p.savedAgoDays),
+  deliveryEstimate: formatDeliveryEstimate(2 + Math.floor(deliveryRand() * 6)), // 2-7 days out
 }));
 
 // ---------------------------------------------------------------------------

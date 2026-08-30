@@ -22,7 +22,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-25T19:47:31.082Z"
+    "savedAt": "2026-08-25T19:47:31.082Z",
+    "deliveryEstimate": "Delivery by Fri, Sep 4"
   },
   {
     "id": "shirt-roadster-002",
@@ -47,7 +48,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-09T04:18:34.845Z"
+    "savedAt": "2026-08-09T04:18:34.845Z",
+    "deliveryEstimate": "Delivery by Sun, Sep 6"
   },
   {
     "id": "shirt-hereandnow-001",
@@ -72,7 +74,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-18T20:01:43.457Z"
+    "savedAt": "2026-08-18T20:01:43.457Z",
+    "deliveryEstimate": "Delivery by Sun, Sep 6"
   },
   {
     "id": "shirt-hereandnow-002",
@@ -97,7 +100,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-28T01:05:31.744Z"
+    "savedAt": "2026-08-28T01:05:31.744Z",
+    "deliveryEstimate": "Delivery by Fri, Sep 4"
   },
   {
     "id": "shirt-vanheusen-001",
@@ -122,7 +126,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-07-26T16:47:39.307Z"
+    "savedAt": "2026-07-26T16:47:39.307Z",
+    "deliveryEstimate": "Delivery by Thu, Sep 3"
   },
   {
     "id": "shirt-vanheusen-002",
@@ -147,7 +152,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-28T15:13:04.621Z"
+    "savedAt": "2026-08-28T15:13:04.621Z",
+    "deliveryEstimate": "Delivery by Sat, Sep 5"
   },
   {
     "id": "shirt-peterengland-001",
@@ -172,7 +178,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-07-16T08:31:01.882Z"
+    "savedAt": "2026-07-16T08:31:01.882Z",
+    "deliveryEstimate": "Delivery by Wed, Sep 2"
   },
   {
     "id": "shirt-peterengland-002",
@@ -197,7 +204,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-21T23:27:42.054Z"
+    "savedAt": "2026-08-21T23:27:42.054Z",
+    "deliveryEstimate": "Delivery by Sun, Sep 6"
   },
   {
     "id": "shirt-highlander-001",
@@ -222,7 +230,8 @@
       "XL",
       "XXL"
     ],
-    "savedAt": "2026-08-14T21:52:14.012Z"
+    "savedAt": "2026-08-14T21:52:14.012Z",
+    "deliveryEstimate": "Delivery by Thu, Sep 3"
   },
   {
     "id": "pants-levis-001",
@@ -248,7 +257,8 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-08-23T23:42:45.098Z"
+    "savedAt": "2026-08-23T23:42:45.098Z",
+    "deliveryEstimate": "Delivery by Tue, Sep 1"
   },
   {
     "id": "pants-levis-002",
@@ -274,7 +284,8 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-08-02T14:38:30.492Z"
+    "savedAt": "2026-08-02T14:38:30.492Z",
+    "deliveryEstimate": "Delivery by Wed, Sep 2"
   },
   {
     "id": "pants-uspoloassn-001",
@@ -300,7 +311,8 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-08-27T01:06:48.340Z"
+    "savedAt": "2026-08-27T01:06:48.340Z",
+    "deliveryEstimate": "Delivery by Fri, Sep 4"
   },
   {
     "id": "pants-uspoloassn-002",
@@ -326,7 +338,8 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-08-11T17:28:31.596Z"
+    "savedAt": "2026-08-11T17:28:31.596Z",
+    "deliveryEstimate": "Delivery by Sun, Sep 6"
   },
   {
     "id": "pants-allensolly-001",
@@ -352,7 +365,8 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-08-20T18:24:56.098Z"
+    "savedAt": "2026-08-20T18:24:56.098Z",
+    "deliveryEstimate": "Delivery by Sun, Sep 6"
   },
   {
     "id": "pants-allensolly-002",
@@ -378,7 +392,8 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-07-20T17:12:05.887Z"
+    "savedAt": "2026-07-20T17:12:05.887Z",
+    "deliveryEstimate": "Delivery by Fri, Sep 4"
   },
   {
     "id": "pants-wrogn-001",
@@ -404,6 +419,7 @@
       "36",
       "38"
     ],
-    "savedAt": "2026-08-29T08:42:40.045Z"
+    "savedAt": "2026-08-29T08:42:40.045Z",
+    "deliveryEstimate": "Delivery by Tue, Sep 1"
   }
 ]
