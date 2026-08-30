@@ -35,7 +35,7 @@ export function CardActions({
         fullWidth
         disabled={!!disabledReason}
         onClick={onAddToBag}
-        className={bagged ? "border-positive text-positive" : ""}
+        className={bagged ? "border-positive text-positive-text" : ""}
       >
         {bagged ? (
           <>
@@ -59,7 +59,7 @@ export function CardActions({
         <Link
           href={`/product/${product.id}`}
           onClick={onOpenProduct}
-          className="min-h-11 rounded-lg px-2 text-[13px] font-semibold text-brand"
+          className="min-h-11 rounded-lg px-2 text-[13px] font-semibold text-brand-dark"
         >
           See product
         </Link>

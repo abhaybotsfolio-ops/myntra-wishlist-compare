@@ -74,11 +74,12 @@ export function ProductTile({
           {body}
         </button>
       ) : (
-        <Link
-          href={`/product/${product.id}`}
-          aria-label={`${product.brand} ${product.title}, view product`}
-          className="block"
-        >
+        // No aria-label override: Lighthouse's label-content-name-mismatch
+        // audit expects a link's accessible name to reflect its visible
+        // content (WCAG 2.5.3) — this link's content already is brand,
+        // title and price, so the natural content-derived name satisfies
+        // that and is more complete than any hand-written summary of it.
+        <Link href={`/product/${product.id}`} className="block">
           {body}
         </Link>
       )}

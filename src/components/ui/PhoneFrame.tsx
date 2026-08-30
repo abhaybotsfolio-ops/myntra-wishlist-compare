@@ -24,12 +24,12 @@ export function PhoneFrame({ children }: { children: ReactNode }) {
           md:border-[#1c1c1e] md:shadow-2xl md:[transform:translateZ(0)]"
       >
         <StatusBar />
-        <div
+        <main
           id="app-scroll"
           className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
         >
           {children}
-        </div>
+        </main>
       </div>
     </div>
   );

@@ -13,7 +13,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // No maximumScale/userScalable lock — that disables pinch-zoom, which
+  // fails Lighthouse's meta-viewport accessibility audit and genuinely
+  // blocks low-vision users regardless of what Lighthouse thinks.
   themeColor: "#ff3f6c",
 };
 

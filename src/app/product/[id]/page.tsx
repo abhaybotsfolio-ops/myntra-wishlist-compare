@@ -102,7 +102,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <Button
           variant={bagged ? "secondary" : "primary"}
           fullWidth
-          className={bagged ? "border-positive text-positive" : ""}
+          className={bagged ? "border-positive text-positive-text" : ""}
           onClick={() => {
             addToBag(product.id, "pdp", Date.now() - mountedAt);
             showToast(`Added ${product.brand} to bag`);

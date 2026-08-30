@@ -13,13 +13,14 @@
   --color-brand-tint: #fff0f4; /* selected backgrounds */
   --color-ink: #282c3f; /* primary text — Myntra's near-navy, not black */
   --color-ink-muted: #535766; /* secondary text */
-  --color-ink-faint: #94969f; /* tertiary, struck MRP, metadata */
+  --color-ink-faint: #6f7077; /* tertiary, struck MRP, metadata — darkened from the skill's #94969f (2.95:1, fails WCAG 4.5:1) since this token is used as real small text throughout, not just decoration */
   --color-line: #eaeaec; /* hairlines, dividers, card borders */
   --color-surface: #ffffff;
   --color-canvas: #f5f5f6; /* page background behind cards */
-  --color-discount: #ff905a; /* discount % */
-  --color-positive: #03a685; /* in stock, rating pill, positive theme */
-  --color-warning: #f2a03d; /* low stock */
+  --color-discount: #a55d3a; /* discount % — darkened from the skill's #ff905a: that value is 2.2:1 against white/canvas, well under WCAG's 4.5:1 for text this size (Lighthouse a11y audit, ACCEPTANCE X.8). Still reads as orange-red, just legible. */
+  --color-positive: #03a685; /* in stock, rating pill, positive theme — background tints/dots/icon fills only; see --color-positive-text for anywhere this is the text color itself */
+  --color-positive-text: #027c63; /* same hue, darkened for 4.5:1 as actual text (e.g. "Added to Bag") rather than a tint/dot/icon */
+  --color-warning: #f2a03d; /* low stock — background tints/dots only, never text */
   --color-negative: #d43d51; /* unavailable, negative theme */
 
   --font-sans:
