@@ -2,12 +2,14 @@
   "name": "myntra-wishlist-compare",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate:data": "node scripts/validate-data.ts"
   },
   "dependencies": {
     "framer-motion": "^13.1.1",

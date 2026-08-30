@@ -1,0 +1,16 @@
+[
+  {
+    "atMs": 15000,
+    "sku": "shirt-hereandnow-002",
+    "size": "S",
+    "newUnits": 0,
+    "condition": "sku_in_active_deck"
+  },
+  {
+    "atMs": 40000,
+    "sku": "pants-allensolly-001",
+    "size": "32",
+    "newUnits": 0,
+    "condition": "sku_in_active_deck"
+  }
+]

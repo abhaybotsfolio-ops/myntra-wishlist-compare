@@ -1,0 +1,409 @@
+[
+  {
+    "id": "shirt-roadster-001",
+    "category": "shirts",
+    "brand": "Roadster",
+    "title": "Slim Fit Cotton Casual Shirt",
+    "images": [
+      "/products/shirt-roadster-001-1.jpg",
+      "/products/shirt-roadster-001-2.jpg"
+    ],
+    "mrp": 1799,
+    "price": 899,
+    "discountPct": 50,
+    "rating": 4.1,
+    "ratingCount": 2841,
+    "fit": "Slim Fit",
+    "material": "100% Cotton",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-25T19:47:31.082Z"
+  },
+  {
+    "id": "shirt-roadster-002",
+    "category": "shirts",
+    "brand": "Roadster",
+    "title": "Regular Fit Checked Casual Shirt",
+    "images": [
+      "/products/shirt-roadster-002-1.jpg",
+      "/products/shirt-roadster-002-2.jpg"
+    ],
+    "mrp": 1599,
+    "price": 799,
+    "discountPct": 50,
+    "rating": 3.9,
+    "ratingCount": 612,
+    "fit": "Regular Fit",
+    "material": "Cotton Blend",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-09T04:18:34.845Z"
+  },
+  {
+    "id": "shirt-hereandnow-001",
+    "category": "shirts",
+    "brand": "HERE&NOW",
+    "title": "Relaxed Fit Cotton Poplin Shirt",
+    "images": [
+      "/products/shirt-hereandnow-001-1.jpg",
+      "/products/shirt-hereandnow-001-2.jpg"
+    ],
+    "mrp": 1299,
+    "price": 649,
+    "discountPct": 50,
+    "rating": 3.6,
+    "ratingCount": 940,
+    "fit": "Relaxed Fit",
+    "material": "100% Cotton",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-18T20:01:43.457Z"
+  },
+  {
+    "id": "shirt-hereandnow-002",
+    "category": "shirts",
+    "brand": "HERE&NOW",
+    "title": "Tapered Fit Linen Shirt",
+    "images": [
+      "/products/shirt-hereandnow-002-1.jpg",
+      "/products/shirt-hereandnow-002-2.jpg"
+    ],
+    "mrp": 1999,
+    "price": 1199,
+    "discountPct": 40,
+    "rating": 4.4,
+    "ratingCount": 1523,
+    "fit": "Tapered Fit",
+    "material": "Linen Blend",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-28T01:05:31.744Z"
+  },
+  {
+    "id": "shirt-vanheusen-001",
+    "category": "shirts",
+    "brand": "Van Heusen",
+    "title": "Regular Fit Formal Shirt",
+    "images": [
+      "/products/shirt-vanheusen-001-1.jpg",
+      "/products/shirt-vanheusen-001-2.jpg"
+    ],
+    "mrp": 2499,
+    "price": 1499,
+    "discountPct": 40,
+    "rating": 3.7,
+    "ratingCount": 2210,
+    "fit": "Regular Fit",
+    "material": "Cotton Blend",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-07-26T16:47:39.307Z"
+  },
+  {
+    "id": "shirt-vanheusen-002",
+    "category": "shirts",
+    "brand": "Van Heusen",
+    "title": "Slim Fit Wrinkle-Free Shirt",
+    "images": [
+      "/products/shirt-vanheusen-002-1.jpg",
+      "/products/shirt-vanheusen-002-2.jpg"
+    ],
+    "mrp": 1999,
+    "price": 1599,
+    "discountPct": 20,
+    "rating": 4,
+    "ratingCount": 58,
+    "fit": "Slim Fit",
+    "material": "Poly-Viscose",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-28T15:13:04.621Z"
+  },
+  {
+    "id": "shirt-peterengland-001",
+    "category": "shirts",
+    "brand": "Peter England",
+    "title": "Regular Fit Office Formal Shirt",
+    "images": [
+      "/products/shirt-peterengland-001-1.jpg",
+      "/products/shirt-peterengland-001-2.jpg"
+    ],
+    "mrp": 1999,
+    "price": 999,
+    "discountPct": 50,
+    "rating": 4.3,
+    "ratingCount": 3102,
+    "fit": "Regular Fit",
+    "material": "Cotton Blend",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-07-16T08:31:01.882Z"
+  },
+  {
+    "id": "shirt-peterengland-002",
+    "category": "shirts",
+    "brand": "Peter England",
+    "title": "Slim Fit Cotton Formal Shirt",
+    "images": [
+      "/products/shirt-peterengland-002-1.jpg",
+      "/products/shirt-peterengland-002-2.jpg"
+    ],
+    "mrp": 1299,
+    "price": 779,
+    "discountPct": 40,
+    "rating": 3.8,
+    "ratingCount": 487,
+    "fit": "Slim Fit",
+    "material": "100% Cotton",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-21T23:27:42.054Z"
+  },
+  {
+    "id": "shirt-highlander-001",
+    "category": "shirts",
+    "brand": "Highlander",
+    "title": "Slim Fit Printed Casual Shirt",
+    "images": [
+      "/products/shirt-highlander-001-1.jpg",
+      "/products/shirt-highlander-001-2.jpg"
+    ],
+    "mrp": 999,
+    "price": 499,
+    "discountPct": 50,
+    "rating": 3.5,
+    "ratingCount": 1050,
+    "fit": "Slim Fit",
+    "material": "Poly-Viscose",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "savedAt": "2026-08-14T21:52:14.012Z"
+  },
+  {
+    "id": "pants-levis-001",
+    "category": "pants",
+    "brand": "Levi's",
+    "title": "511 Slim Fit Jeans",
+    "images": [
+      "/products/pants-levis-001-1.jpg",
+      "/products/pants-levis-001-2.jpg"
+    ],
+    "mrp": 3499,
+    "price": 3499,
+    "discountPct": 0,
+    "rating": 4.6,
+    "ratingCount": 5230,
+    "fit": "Slim Fit",
+    "material": "Stretch Denim",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-08-23T23:42:45.098Z"
+  },
+  {
+    "id": "pants-levis-002",
+    "category": "pants",
+    "brand": "Levi's",
+    "title": "512 Tapered Fit Jeans",
+    "images": [
+      "/products/pants-levis-002-1.jpg",
+      "/products/pants-levis-002-2.jpg"
+    ],
+    "mrp": 2999,
+    "price": 1799,
+    "discountPct": 40,
+    "rating": 3.8,
+    "ratingCount": 876,
+    "fit": "Tapered Fit",
+    "material": "Stretch Denim",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-08-02T14:38:30.492Z"
+  },
+  {
+    "id": "pants-uspoloassn-001",
+    "category": "pants",
+    "brand": "U.S. Polo Assn.",
+    "title": "Regular Fit Chino Trousers",
+    "images": [
+      "/products/pants-uspoloassn-001-1.jpg",
+      "/products/pants-uspoloassn-001-2.jpg"
+    ],
+    "mrp": 2299,
+    "price": 999,
+    "discountPct": 57,
+    "rating": 4.2,
+    "ratingCount": 1680,
+    "fit": "Regular Fit",
+    "material": "Cotton Blend",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-08-27T01:06:48.340Z"
+  },
+  {
+    "id": "pants-uspoloassn-002",
+    "category": "pants",
+    "brand": "U.S. Polo Assn.",
+    "title": "Tapered Fit Casual Trousers",
+    "images": [
+      "/products/pants-uspoloassn-002-1.jpg",
+      "/products/pants-uspoloassn-002-2.jpg"
+    ],
+    "mrp": 1499,
+    "price": 1199,
+    "discountPct": 20,
+    "rating": 4,
+    "ratingCount": 640,
+    "fit": "Tapered Fit",
+    "material": "Cotton Blend",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-08-11T17:28:31.596Z"
+  },
+  {
+    "id": "pants-allensolly-001",
+    "category": "pants",
+    "brand": "Allen Solly",
+    "title": "Slim Fit Formal Trousers",
+    "images": [
+      "/products/pants-allensolly-001-1.jpg",
+      "/products/pants-allensolly-001-2.jpg"
+    ],
+    "mrp": 2599,
+    "price": 1299,
+    "discountPct": 50,
+    "rating": 4.5,
+    "ratingCount": 2990,
+    "fit": "Slim Fit",
+    "material": "100% Cotton",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-08-20T18:24:56.098Z"
+  },
+  {
+    "id": "pants-allensolly-002",
+    "category": "pants",
+    "brand": "Allen Solly",
+    "title": "Relaxed Fit Casual Trousers",
+    "images": [
+      "/products/pants-allensolly-002-1.jpg",
+      "/products/pants-allensolly-002-2.jpg"
+    ],
+    "mrp": 1499,
+    "price": 749,
+    "discountPct": 50,
+    "rating": 3.4,
+    "ratingCount": 410,
+    "fit": "Relaxed Fit",
+    "material": "Poly-Viscose",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-07-20T17:12:05.887Z"
+  },
+  {
+    "id": "pants-wrogn-001",
+    "category": "pants",
+    "brand": "WROGN",
+    "title": "Tapered Fit Joggers",
+    "images": [
+      "/products/pants-wrogn-001-1.jpg",
+      "/products/pants-wrogn-001-2.jpg"
+    ],
+    "mrp": 1999,
+    "price": 1099,
+    "discountPct": 45,
+    "rating": 3.9,
+    "ratingCount": 95,
+    "fit": "Tapered Fit",
+    "material": "Cotton Blend",
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36",
+      "38"
+    ],
+    "savedAt": "2026-08-29T08:42:40.045Z"
+  }
+]

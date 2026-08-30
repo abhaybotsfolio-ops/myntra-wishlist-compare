@@ -32,6 +32,58 @@ takes precedence.
   fallback-first build order, caching, timeouts — is unchanged from the spec's design intent.
   Only the provider and env var name moved.
 
+## D1 — Summary.themes: conditional min, not a flat min(2)
+
+**Spec said:** `docs/DATA_MODEL.md`'s `Summary` schema writes
+`themes: z.array(Theme).min(2).max(3)`, commented `// empty when insufficient`. Those two
+things contradict each other — a flat `.min(2)` rejects the `[]` that the same doc's
+`review-summarizer` skill returns for the below-threshold case
+(`{ status: 'insufficient_reviews', themes: [] }`).
+
+**Decision:** `data/schema.ts` keeps `themes` as `.max(3)` unconditionally and enforces the
+real invariant with `superRefine`: `status: 'ok'` requires 2–3 themes, `status:
+'insufficient_reviews'` requires zero. This is what both call sites actually need, and it's
+stricter than just dropping the lower bound would have been.
+
+## D2 — Signalled brands are single-category
+
+**Spec said:** `SizeSignal` is `{brand, size, confidence, source, basis}` — no category field — and the
+size-wedge skill pins `getRecommendedSize(profile, brand)`'s signature with brand only, no
+category argument. Neither doc addresses what happens if one brand sells both shirts (alpha
+sizes: S–XXL) and pants (numeric waist: 28–38): a single signal can't honestly recommend two
+differently-scaled sizes at once.
+
+**Decision:** every brand that carries a size signal appears in exactly one category in the
+catalog (e.g. Roadster is shirts-only, Levi's is pants-only). The catalog only has 9 real
+brand names to work with (RULES A4 + the catalog-seed skill's list, taken as the exhaustive
+allowlist, not just examples — inventing a 10th real-sounding brand name seemed like the
+worse risk), so full non-overlap across all 16 products isn't possible; the two deliberately
+*unsignalled* brands (Highlander, WROGN) are the ones exempt from this, since "no signal"
+is unambiguous regardless of category. This is what makes `getRecommendedSize(profile,
+brand)`'s signature honest as written, rather than silently wrong for a hypothetical
+brand that sells both.
+
+## D3 — Product imagery is generated, not sourced
+
+**Spec said:** catalog-seed skill: download real Unsplash/Pexels photography, two per SKU,
+committed with `CREDITS.md` attribution — with an explicit sanctioned fallback: "If the
+network is unavailable, generate deterministic SVG placeholders... Ugly is acceptable;
+broken is not."
+
+**Decision:** generated placeholders for all 32 images, not because the network was down
+(it wasn't) but because individually sourcing and vetting 32 correctly-licensed, on-theme
+photos was a poor time trade against the seven build phases still ahead, and the skill
+explicitly sanctions this path rather than only permitting it under a literal network
+outage. `scripts/generate-seed.ts` builds each as one coherent SVG silhouette (a real closed
+outline — collar/placket/pocket for shirts, waistband/fly/legs for pants — not a stock
+"garment icon"), colored per-product from a curated palette, brand name and product title
+rendered as type per the skill's own spec for what the placeholder should contain, then
+rasterizes to JPEG with `sharp` (already present as `next`'s own optional dependency, so
+this adds nothing to Phase 0's dependency list) at 800×1067, all well under the 120KB budget.
+`public/products/CREDITS.md` says plainly that these are generated, not photographed, so
+nobody mistakes them for sourced work needing attribution. Swapping in real photography
+later touches only that folder — every other file references images by path only.
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user

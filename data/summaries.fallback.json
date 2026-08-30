@@ -1,0 +1,332 @@
+{
+  "shirt-roadster-001": {
+    "sku": "shirt-roadster-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Softens after first wash",
+        "detail": "Feels stiff out of the pack but several buyers say it softens after the first wash.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "True to size",
+        "detail": "Runs true to size through the shoulders and body for most reviewers.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "Boxier than expected",
+        "detail": "A few reviewers found it boxier through the chest than a slim fit suggests.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 30
+  },
+  "shirt-roadster-002": {
+    "sku": "shirt-roadster-002",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Checks line up neatly",
+        "detail": "The check pattern lines up cleanly at the seams, better finish than the price implies.",
+        "sentiment": "positive",
+        "mentions": 1
+      },
+      {
+        "label": "Fabric on the thin side",
+        "detail": "A couple of buyers wanted a heavier weave for a checked shirt.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 9
+  },
+  "shirt-hereandnow-001": {
+    "sku": "shirt-hereandnow-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Shoulders run large",
+        "detail": "Multiple buyers report the shoulder seams sitting well past where they expect, even sized down.",
+        "sentiment": "negative",
+        "mentions": 10
+      },
+      {
+        "label": "Poplin breathes well",
+        "detail": "The poplin weave holds up in humid weather according to several reviewers.",
+        "sentiment": "positive",
+        "mentions": 2
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 26
+  },
+  "shirt-hereandnow-002": {
+    "sku": "shirt-hereandnow-002",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Breathes well in humidity",
+        "detail": "The linen blend is repeatedly called out as comfortable in humid weather.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "Tapered cut actually tapers",
+        "detail": "Reviewers note a real difference from the brand's relaxed-fit shirts.",
+        "sentiment": "positive",
+        "mentions": 7
+      },
+      {
+        "label": "Wrinkles like linen does",
+        "detail": "Some buyers flag it creases quickly and needs steaming before wearing out.",
+        "sentiment": "mixed",
+        "mentions": 2
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 30
+  },
+  "shirt-vanheusen-001": {
+    "sku": "shirt-vanheusen-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Runs greyer than photos",
+        "detail": "Several buyers say the blue reads noticeably greyer in person than in the listing photos.",
+        "sentiment": "negative",
+        "mentions": 8
+      },
+      {
+        "label": "Fits well for office wear",
+        "detail": "Regular fit through the body works well for a full office day, per multiple reviews.",
+        "sentiment": "positive",
+        "mentions": 2
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 26
+  },
+  "shirt-vanheusen-002": {
+    "sku": "shirt-vanheusen-002",
+    "status": "insufficient_reviews",
+    "themes": [],
+    "source": "fallback",
+    "basedOn": 3
+  },
+  "shirt-peterengland-001": {
+    "sku": "shirt-peterengland-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Holds a crisp look all day",
+        "detail": "Reviewers say it stays crisp through a full workday with minimal ironing.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "True to size",
+        "detail": "Consistently fits as expected for a regular fit, per multiple reviewers.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "Slightly long in the body",
+        "detail": "A few buyers found it longer in the body than expected — fine tucked in.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 30
+  },
+  "shirt-peterengland-002": {
+    "sku": "shirt-peterengland-002",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Genuinely slim fit",
+        "detail": "Reviewers confirm the slim fit runs true — size up if you're not used to fitted shirts.",
+        "sentiment": "positive",
+        "mentions": 2
+      },
+      {
+        "label": "Some pilling under the arms",
+        "detail": "At least one buyer noticed pilling under the arms after a month of wear.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 9
+  },
+  "shirt-highlander-001": {
+    "sku": "shirt-highlander-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Fabric runs sheer",
+        "detail": "Multiple buyers say the fabric is thin enough to need a plain tee underneath.",
+        "sentiment": "negative",
+        "mentions": 12
+      },
+      {
+        "label": "Print matches the photos",
+        "detail": "The printed design is repeatedly described as true to the listing photos.",
+        "sentiment": "positive",
+        "mentions": 10
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 26
+  },
+  "pants-levis-001": {
+    "sku": "pants-levis-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Classic 511 fit as expected",
+        "detail": "Reviewers confirm it matches the familiar 511 fit from other Levi's purchases.",
+        "sentiment": "positive",
+        "mentions": 4
+      },
+      {
+        "label": "Stretch moves with you",
+        "detail": "The stretch denim is repeatedly called comfortable for a full day of walking.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "Stiff for first few wears",
+        "detail": "A few buyers note it takes two or three wears to break in.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 32
+  },
+  "pants-levis-002": {
+    "sku": "pants-levis-002",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Waist runs small",
+        "detail": "Several buyers sized up after finding the waist noticeably tighter than the tag.",
+        "sentiment": "negative",
+        "mentions": 10
+      },
+      {
+        "label": "Tapered leg pairs well",
+        "detail": "The tapered leg is called a good match for boots or sneakers.",
+        "sentiment": "positive",
+        "mentions": 3
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 26
+  },
+  "pants-uspoloassn-001": {
+    "sku": "pants-uspoloassn-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Holds a crease well",
+        "detail": "Reviewers say it holds a crease through a full workday.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "True to size",
+        "detail": "Fits true through the waist and thigh for most reviewers.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "Runs slightly long",
+        "detail": "A few buyers had it hemmed after finding the length slightly long.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 30
+  },
+  "pants-uspoloassn-002": {
+    "sku": "pants-uspoloassn-002",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Sharp tapered cut",
+        "detail": "Called sharp-looking without going skinny by more than one reviewer.",
+        "sentiment": "positive",
+        "mentions": 2
+      },
+      {
+        "label": "Colour a touch darker",
+        "detail": "At least one buyer found the colour a shade darker than shown online.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 9
+  },
+  "pants-allensolly-001": {
+    "sku": "pants-allensolly-001",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Good drape, low wrinkling",
+        "detail": "Reviewers note it drapes well and resists wrinkling through a workday.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "True to size",
+        "detail": "Fits true across waist and length for most buyers.",
+        "sentiment": "positive",
+        "mentions": 3
+      },
+      {
+        "label": "Snug through the thigh",
+        "detail": "A few reviewers used to a regular fit found it snug through the thigh.",
+        "sentiment": "mixed",
+        "mentions": 1
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 30
+  },
+  "pants-allensolly-002": {
+    "sku": "pants-allensolly-002",
+    "status": "ok",
+    "themes": [
+      {
+        "label": "Colour fades fast",
+        "detail": "Multiple buyers report visible fading within the first few washes.",
+        "sentiment": "negative",
+        "mentions": 6
+      },
+      {
+        "label": "Comfortable relaxed fit",
+        "detail": "Reviewers consistently call the relaxed fit comfortable for weekend wear.",
+        "sentiment": "positive",
+        "mentions": 4
+      }
+    ],
+    "source": "fallback",
+    "basedOn": 26
+  },
+  "pants-wrogn-001": {
+    "sku": "pants-wrogn-001",
+    "status": "insufficient_reviews",
+    "themes": [],
+    "source": "fallback",
+    "basedOn": 4
+  }
+}

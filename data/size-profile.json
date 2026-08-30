@@ -1,0 +1,55 @@
+{
+  "defaultShirtSize": "M",
+  "defaultPantSize": "32",
+  "signals": [
+    {
+      "brand": "Roadster",
+      "size": "M",
+      "confidence": "high",
+      "source": "past_purchase",
+      "basis": "You bought M in Roadster twice"
+    },
+    {
+      "brand": "HERE&NOW",
+      "size": "S",
+      "confidence": "medium",
+      "source": "stated_preference",
+      "basis": "You said you prefer a snugger fit in HERE&NOW"
+    },
+    {
+      "brand": "Van Heusen",
+      "size": "L",
+      "confidence": "high",
+      "source": "past_purchase",
+      "basis": "You bought L in Van Heusen last month"
+    },
+    {
+      "brand": "Peter England",
+      "size": "M",
+      "confidence": "medium",
+      "source": "past_return",
+      "basis": "You returned L in Peter England as too loose"
+    },
+    {
+      "brand": "Levi's",
+      "size": "32",
+      "confidence": "high",
+      "source": "past_purchase",
+      "basis": "You bought 32 in Levi's twice"
+    },
+    {
+      "brand": "U.S. Polo Assn.",
+      "size": "34",
+      "confidence": "medium",
+      "source": "past_return",
+      "basis": "You returned 32 in U.S. Polo Assn. as too tight"
+    },
+    {
+      "brand": "Allen Solly",
+      "size": "32",
+      "confidence": "high",
+      "source": "stated_preference",
+      "basis": "You said 32 fits you best in Allen Solly"
+    }
+  ]
+}
