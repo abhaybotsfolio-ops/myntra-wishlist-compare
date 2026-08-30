@@ -43,12 +43,35 @@ category beyond Shirts/Pants, zero console errors across the full flow, every ta
 ≥44×44px, the app runs with zero env vars set — are in `tests/e2e/x-cross-cutting.spec.ts` plus
 a `grep` pre-flight (see [Deploying](#deploying)).
 
+## Beyond the PRD: wishlist redesign & comparison decision-support
+
+Operator-directed, after the six R-numbered requirements above were built — see
+[`DECISIONS.md`](DECISIONS.md) D7 for the full reasoning, including where a real Myntra
+screenshot the operator shared pulled against `RULES.md`'s hard constraints.
+
+- **Wishlist screen**, adapted toward that screenshot within the rules: [`ProductTile.tsx`](src/components/wishlist/ProductTile.tsx)
+  gained a rating badge, an Add-to-Bag pill, a delivery estimate, and a delete/move-to-bag/share
+  icon row; [`CategoryTabs.tsx`](src/components/wishlist/CategoryTabs.tsx) became a circle-icon
+  rail (still exactly All/Shirts/Pants — RULES B1); [`CompareIntroBanner.tsx`](src/components/wishlist/CompareIntroBanner.tsx)
+  replaces the screenshot's cashback banner with a non-promotional explainer (RULES B2); and
+  [`OutOfStockFilterPill.tsx`](src/components/wishlist/OutOfStockFilterPill.tsx) is a real,
+  inventory-backed filter, not a decorative one. Verified by `tests/e2e/wishlist-tile-actions.spec.ts`
+  and `tests/e2e/wishlist-outofstock-filter.spec.ts`.
+- **Compare card**, reframed from PDP-style per-product attributes toward cross-product
+  decision help: [`lib/compareStats.ts`](src/lib/compareStats.ts) computes a "Lowest price" /
+  "Highest rated" [`LeaderChip.tsx`](src/components/compare/LeaderChip.tsx) per attribute (RULES
+  B3 explicitly allows a neutral factual marker like this — never a card-level winner) and a
+  once-rendered [`SummaryStrip.tsx`](src/components/compare/SummaryStrip.tsx) above the deck
+  showing the set's price/rating range and how many selected items are available in the
+  shopper's size. Verified by `tests/e2e/compare-leader-chips.spec.ts` (including pure
+  tie-break-logic tests and a banned-language grep) and `tests/e2e/compare-summary-strip.spec.ts`.
+
 ## What's mocked vs. real
 
 | | |
 |---|---|
 | **Real** | The interaction itself — selection, swipe, alignment, session persistence. The size recommendation/availability *logic* and the live in-session stock-change mechanism. The LLM summarization pipeline: real Gemini calls, real threshold gating, real anti-sycophancy validation with a real retry — when `GEMINI_API_KEY` is set. |
-| **Mocked** | The catalog (16 hand-authored products), reviews (346 synthetic, written for this project — see `RULES.md` A5), inventory, and size-profile are all seed JSON in `/data`, not live services. Product photography is generated (deterministic SVG flat-lays rasterized to JPEG), not sourced — see [`DECISIONS.md`](DECISIONS.md) D3 for why and how to swap in real photos later. Without a Gemini key, review summaries fall back to hand-written precomputed themes rather than a live call. |
+| **Mocked** | The catalog (16 hand-authored products), reviews (346 synthetic, written for this project — see `RULES.md` A5), inventory, and size-profile are all seed JSON in `/data`, not live services. Product photography is generated (deterministic SVG flat-lays rasterized to JPEG), not sourced — see [`DECISIONS.md`](DECISIONS.md) D3 for why and how to swap in real photos later. Each product's delivery estimate is likewise fabricated-but-deterministic, generated once at seed time (D7), not a real courier quote. Without a Gemini key, review summaries fall back to hand-written precomputed themes rather than a live call. |
 
 Every mock sits behind a function signature a real service could satisfy unchanged —
 `docs/ARCHITECTURE.md` §9 maps each one to its production equivalent.
@@ -65,20 +88,25 @@ pattern `lib/summarize.ts` already uses for the LLM) is a one-function change, n
 Every place the spec was silent or (twice) internally inconsistent is logged with reasoning in
 [`DECISIONS.md`](DECISIONS.md) — including the operator-directed Groq→Gemini substitution, why
 signalled-brand size signals are kept single-category, why the scripted stock event resolves
-against the live deck instead of a hardcoded SKU, and a real bug (native image drag-and-drop
+against the live deck instead of a hardcoded SKU, a real bug (native image drag-and-drop
 silently swallowing the swipe gesture for mouse/trackpad users) found and fixed while writing
-the acceptance suite.
+the acceptance suite, and (D7) the operator-directed wishlist redesign and compare-card
+decision-support features — including where a real Myntra screenshot pulled against RULES.md's
+hard constraints, and how that tension was resolved.
 
 ## Testing
 
 ```bash
 npx playwright install chromium   # once
-npx playwright test               # builds, starts a production server, runs all 47 specs
+npx playwright test               # builds, starts a production server, runs all 69 specs
 ```
 
 Runs against a production build (`next build && next start`), not `next dev` — matching how
 the app actually ships, at the real 390×844 mobile viewport RULES.md targets. All 47 auto rows
-in `docs/ACCEPTANCE.md` pass. The manual rows (visual weight, skeleton-vs-spinner, Lighthouse,
+in `docs/ACCEPTANCE.md` pass, plus 22 more specs (`wishlist-tile-actions`,
+`wishlist-outofstock-filter`, `compare-leader-chips`, `compare-summary-strip`) covering the
+operator-directed features in [Beyond the PRD](#beyond-the-prd-wishlist-redesign--comparison-decision-support)
+above. The manual rows (visual weight, skeleton-vs-spinner, Lighthouse,
 a real-phone pass) were checked by hand; Lighthouse mobile against `/wishlist` (production
 build) scored 96 performance / 100 accessibility, both comfortably past the ≥85 / ≥95 bar —
 see `DECISIONS.md` D6 for the specific fixes that got accessibility there (it started at 89).
