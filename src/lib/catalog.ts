@@ -22,6 +22,7 @@ import {
   type StockEvent,
   type Summary,
 } from "../../data/schema.ts";
+import { isFullyOutOfStock } from "./size";
 
 import productsRaw from "../../data/products.json";
 import reviewsRaw from "../../data/reviews.json";
@@ -62,6 +63,13 @@ export const FALLBACK_SUMMARIES: Record<string, Summary> = loadOrFallback(
 );
 
 const PRODUCTS_BY_ID = new Map(PRODUCTS.map((p) => [p.id, p]));
+
+/** Computed once at module scope from the same static seed data every other
+ * export here reads — the wishlist's "Out of Stock" filter and tile dimming
+ * both key off this set rather than re-deriving it per component. */
+export const OUT_OF_STOCK_PRODUCT_IDS: Set<string> = new Set(
+  PRODUCTS.filter((p) => isFullyOutOfStock(p.sizes, INVENTORY[p.id])).map((p) => p.id),
+);
 
 export function getProducts(category?: "shirts" | "pants"): Product[] {
   return category ? PRODUCTS.filter((p) => p.category === category) : PRODUCTS;

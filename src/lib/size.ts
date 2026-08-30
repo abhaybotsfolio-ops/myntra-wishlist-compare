@@ -44,6 +44,21 @@ export function getStatus(
   return "available";
 }
 
+/**
+ * Wishlist tile / "Out of Stock" filter concern: a product reads as out of
+ * stock when every size it's offered in has zero units — a factual,
+ * inventory-backed check (RULES B2 — no urgency framing, no guessing),
+ * distinct from the size-wedge's *recommended-size*-specific getStatus
+ * above, which only ever looks at one size at a time.
+ */
+export function isFullyOutOfStock(
+  sizes: string[],
+  row: Record<string, number> | undefined,
+): boolean {
+  if (!row) return false; // no inventory row at all — not a claim of stock-out
+  return sizes.every((size) => (row[size] ?? 0) <= 0);
+}
+
 /** myntra-ui/size-wedge skill: "a real chart with chest/waist
  * measurements, not a placeholder" for the no-signal branch. */
 export const SIZE_GUIDE = {
