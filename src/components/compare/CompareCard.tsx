@@ -12,6 +12,8 @@ import { CardActions } from "@/components/compare/CardActions";
 import { SizeWedge } from "@/components/compare/SizeWedge";
 import { SizeGuideSheet } from "@/components/compare/SizeGuideSheet";
 import { ReviewSummary } from "@/components/compare/ReviewSummary";
+import { LeaderChip } from "@/components/compare/LeaderChip";
+import type { LeaderInfo } from "@/lib/compareStats";
 
 interface CompareCardProps {
   product: Product;
@@ -20,6 +22,7 @@ interface CompareCardProps {
   recommendation: SizeRecommendation | null;
   sizeStatus: AvailabilityStatus | "loading";
   summary: Summary | undefined;
+  leader: LeaderInfo;
   onAddToBag: (dwellMs: number) => void;
   onRemove: () => void;
   onOpenProduct: () => void;
@@ -43,6 +46,7 @@ export function CompareCard({
   recommendation,
   sizeStatus,
   summary,
+  leader,
   onAddToBag,
   onRemove,
   onOpenProduct,
@@ -114,10 +118,18 @@ export function CompareCard({
         );
       case "price":
         return (
-          <PriceLine price={product.price} mrp={product.mrp} discountPct={product.discountPct} />
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <PriceLine price={product.price} mrp={product.mrp} discountPct={product.discountPct} />
+            {leader.lowestPrice && <LeaderChip>Lowest price</LeaderChip>}
+          </div>
         );
       case "rating":
-        return <RatingPill rating={product.rating} ratingCount={product.ratingCount} />;
+        return (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <RatingPill rating={product.rating} ratingCount={product.ratingCount} />
+            {leader.highestRated && <LeaderChip>Highest rated</LeaderChip>}
+          </div>
+        );
       case "size":
         return (
           <>
@@ -158,16 +170,19 @@ export function CompareCard({
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface shadow-card">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {ATTRIBUTE_ROWS.filter((r) => r.key !== "actions").map(({ key, minH }) => {
-          // "size" and "reviews" are the two rows whose content genuinely
+          // "size" and "reviews" are two rows whose content genuinely
           // varies in length per product (a longer basis string, a
           // longer/shorter theme list) — RULES E1/E2's alignment guarantee
           // only holds if that variance can never push a row taller than
-          // its neighbors' on another card, so these two also cap at minH
-          // with overflow hidden. Every other row's content is
-          // structurally fixed-shape already (line-clamped title, a
-          // single price/rating line, a single fit/material value) and
-          // stays pure min-height, per the spec's literal wording.
-          const capped = key === "size" || key === "reviews";
+          // its neighbors' on another card, so these cap at minH with
+          // overflow hidden. "price"/"rating" join them for the same
+          // reason since the leader chips above: a chip is present on some
+          // cards and absent on others in the very same deck, which breaks
+          // the "structurally fixed-shape" assumption every other row still
+          // relies on for pure min-height. Every other row's content stays
+          // truly fixed-shape (line-clamped title, a single fit/material
+          // value) and keeps pure min-height, per the spec's literal wording.
+          const capped = key === "size" || key === "reviews" || key === "price" || key === "rating";
           return (
             <div
               key={key}

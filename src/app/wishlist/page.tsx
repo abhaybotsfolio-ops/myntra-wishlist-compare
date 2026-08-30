@@ -138,7 +138,10 @@ export default function WishlistPage() {
           <div className="relative">
             <ShoppingBag className="h-5 w-5" />
             {bag.length > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
+              <span
+                data-testid="bag-count"
+                className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white"
+              >
                 {bag.length}
               </span>
             )}

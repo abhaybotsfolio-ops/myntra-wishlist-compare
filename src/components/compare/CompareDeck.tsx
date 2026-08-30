@@ -5,8 +5,11 @@ import { motion, useMotionValue, animate, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product, Summary } from "../../../data/schema.ts";
 import type { AvailabilityStatus, SizeRecommendation } from "@/lib/size";
+import type { LeaderInfo } from "@/lib/compareStats";
 import { CompareCard } from "@/components/compare/CompareCard";
 import { track } from "@/lib/track";
+
+const NO_LEADER: LeaderInfo = { lowestPrice: false, highestRated: false };
 
 const SPRING = { type: "spring" as const, stiffness: 320, damping: 34 };
 const VELOCITY_THRESHOLD = 500;
@@ -24,6 +27,7 @@ interface CompareDeckProps {
   bag: string[];
   sizeInfoBySku: Record<string, SizeInfo>;
   summaryBySku: Record<string, Summary | undefined>;
+  leaderBySku: Record<string, LeaderInfo>;
   onAddToBag: (sku: string, dwellMs: number) => void;
   onRemove: (sku: string) => void;
   onOpenProduct: (sku: string) => void;
@@ -43,6 +47,7 @@ export function CompareDeck({
   bag,
   sizeInfoBySku,
   summaryBySku,
+  leaderBySku,
   onAddToBag,
   onRemove,
   onOpenProduct,
@@ -128,6 +133,7 @@ export function CompareDeck({
                 recommendation={sizeInfoBySku[product.id]?.recommendation ?? null}
                 sizeStatus={sizeInfoBySku[product.id]?.status ?? "loading"}
                 summary={summaryBySku[product.id]}
+                leader={leaderBySku[product.id] ?? NO_LEADER}
                 onAddToBag={(dwellMs) => onAddToBag(product.id, dwellMs)}
                 onRemove={() => onRemove(product.id)}
                 onOpenProduct={() => onOpenProduct(product.id)}

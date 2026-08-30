@@ -32,7 +32,7 @@ test.describe("R2 — selection", () => {
   test("2.4 a 5th selection attempt is refused and shows a message", async ({ page }) => {
     await selectNItems(page, 4);
     await expect(page.getByRole("button", { name: "Compare 4" })).toBeVisible();
-    await page.locator('button[aria-pressed="false"]').first().click();
+    await page.locator('button[aria-label^="Select "]').first().click();
     await expect(page.getByRole("button", { name: "Compare 4" })).toBeVisible(); // count stayed at 4
     await expect(page.getByRole("status")).toContainText("up to 4 items");
   });

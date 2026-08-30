@@ -8,10 +8,15 @@ export async function tapCompare(page: Page) {
   await page.getByRole("button", { name: "Compare", exact: true }).click();
 }
 
-/** Selects the first `n` currently-unselected tiles in selection mode. */
+/** Selects the first `n` currently-unselected tiles in selection mode.
+ * Scoped to the tile checkbox's aria-label prefix ("Select ..."), not just
+ * `[aria-pressed="false"]` — the wishlist screen's Out of Stock filter pill
+ * is also a toggle button and also starts at aria-pressed="false", and
+ * being earlier in the DOM than the grid, a bare aria-pressed locator
+ * matches it first instead of a tile. */
 export async function selectNItems(page: Page, n: number) {
   for (let i = 0; i < n; i++) {
-    await page.locator('button[aria-pressed="false"]').first().click();
+    await page.locator('button[aria-label^="Select "]').first().click();
   }
 }
 

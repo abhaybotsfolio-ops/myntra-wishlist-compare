@@ -11,9 +11,11 @@ import { SELECTION_MIN } from "@/lib/constants";
 import { getRecommendedSize, getStatus } from "@/lib/size";
 import { useInventory } from "@/lib/useInventory";
 import { useSummaries } from "@/lib/useSummaries";
+import { computeDeckStats } from "@/lib/compareStats";
 import { CompareDeck, type SizeInfo } from "@/components/compare/CompareDeck";
 import { PositionIndicator } from "@/components/compare/PositionIndicator";
 import { AlignmentOverlay } from "@/components/compare/AlignmentOverlay";
+import { SummaryStrip } from "@/components/compare/SummaryStrip";
 
 const PRODUCTS_BY_ID = new Map(PRODUCTS.map((p) => [p.id, p]));
 
@@ -72,6 +74,13 @@ export default function ComparePage() {
     }
     return map;
   }, [products, recommendationBySku, inventory, loaded]);
+
+  // Deck-wide, not per-card — computed once here (same pure-function
+  // pattern as lib/size.ts) and threaded down: leaderBySku into every
+  // CompareCard's price/rating rows, the rest into the SummaryStrip above
+  // the deck. Recomputes automatically if the scripted stock event flips a
+  // card's sizeStatus mid-session, since it depends on sizeInfoBySku.
+  const deckStats = useMemo(() => computeDeckStats(products, sizeInfoBySku), [products, sizeInfoBySku]);
 
   // R3: /compare redirects to /wishlist if the set has fewer than 2 items.
   // Gated on hasHydrated — before rehydration, `deck` is briefly the
@@ -173,6 +182,8 @@ export default function ComparePage() {
         </div>
       </header>
 
+      <SummaryStrip stats={deckStats} />
+
       <CompareDeck
         products={products}
         index={clampedIndex}
@@ -183,6 +194,7 @@ export default function ComparePage() {
         bag={bag}
         sizeInfoBySku={sizeInfoBySku}
         summaryBySku={summaryBySku}
+        leaderBySku={deckStats.leaderBySku}
         onAddToBag={handleAddToBag}
         onRemove={handleRemove}
         onOpenProduct={handleOpenProduct}

@@ -9,8 +9,8 @@
 export const ATTRIBUTE_ROWS = [
   { key: "image", minH: 200 },
   { key: "identity", minH: 56 }, // brand + title
-  { key: "price", minH: 52 },
-  { key: "rating", minH: 36 },
+  { key: "price", minH: 56 }, // +4px over the bare price line — headroom for a leader chip
+  { key: "rating", minH: 40 }, // +4px over the bare rating pill — same reason
   { key: "size", minH: 76 }, // the wedge
   { key: "fit", minH: 40 },
   { key: "material", minH: 40 },
