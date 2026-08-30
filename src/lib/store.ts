@@ -32,6 +32,7 @@ interface AppState {
   selection: string[];
   deck: string[];
   deckIndex: number;
+  deckStartedAt: number | null;
   bag: string[];
   sizeProfile: SizeProfile;
   events: LoggedEvent[];
@@ -57,6 +58,7 @@ export const useAppStore = create<AppState>()(
       selection: [],
       deck: [],
       deckIndex: 0,
+      deckStartedAt: null,
       bag: [],
       sizeProfile: SIZE_PROFILE,
       events: [],
@@ -91,7 +93,13 @@ export const useAppStore = create<AppState>()(
       confirmSelection: () => {
         const { selection } = get();
         if (selection.length < SELECTION_MIN) return null;
-        set({ deck: [...selection], deckIndex: 0, mode: "browse", selection: [] });
+        set({
+          deck: [...selection],
+          deckIndex: 0,
+          deckStartedAt: Date.now(),
+          mode: "browse",
+          selection: [],
+        });
         track("comparison_started", { skus: selection, count: selection.length });
         return selection;
       },
@@ -138,6 +146,7 @@ export const useAppStore = create<AppState>()(
         selection: s.selection,
         deck: s.deck,
         deckIndex: s.deckIndex,
+        deckStartedAt: s.deckStartedAt,
         bag: s.bag,
         events: s.events,
       }),

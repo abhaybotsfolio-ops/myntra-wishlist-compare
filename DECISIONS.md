@@ -84,6 +84,31 @@ this adds nothing to Phase 0's dependency list) at 800×1067, all well under the
 nobody mistakes them for sourced work needing attribution. Swapping in real photography
 later touches only that folder — every other file references images by path only.
 
+## D4 — Stock event target is resolved against the actual deck, not read literally from the seed file
+
+**Spec said two different things.** `docs/DATA_MODEL.md`'s `StockEvent` has a fixed `sku`
+and `size` per event — reads as "this exact SKU drops at this exact time." But the
+`size-wedge` skill describes resolving the event dynamically: "At `comparison_started`,
+resolve the event against the actual deck — pick a SKU the user selected that is currently
+available in their recommended size," specifically because a fixed-SKU event only fires if
+the user happens to pick that one product, which the same skill calls out as "a demo
+behaviour that will not fire in front of the reviewer."
+
+**Decision:** treat `data/stock-events.json`'s `sku`/`size` as illustrative and use only its
+`atMs` timings. `lib/stock-simulator.ts#resolveStockEvents(deckSkus)` picks real targets at
+request time — a deck SKU whose brand has a signal and is currently `available` in that
+recommended size — deterministically (first eligible candidate per timing slot, not random).
+This guarantees the scripted stock-change is visible in *any* 2-4 item deck a demo viewer
+picks, not only one that happens to include the two specific SKUs named in the seed file.
+
+`/api/inventory` applies this statelessly: the client passes `deckStartedAt` (set once, in
+the store, when `confirmSelection()` freezes the deck) on every poll, and the server compares
+`Date.now() - deckStartedAt` against the resolved events' `atMs` on each request — no
+server-side session memory needed, so it's correct across cold starts and warm-lambda reuse
+alike, and naturally keeps counting correctly through a backgrounded tab (RULES/R3's
+"persists if the user backgrounds the app and returns" applies to elapsed real time here too,
+not just to the deck contents).
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user

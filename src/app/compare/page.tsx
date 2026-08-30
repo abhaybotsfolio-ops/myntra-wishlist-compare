@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ShoppingBag } from "lucide-react";
 import { PRODUCTS } from "@/lib/catalog";
@@ -8,7 +8,9 @@ import { useAppStore } from "@/lib/store";
 import { track } from "@/lib/track";
 import { showToast } from "@/lib/toast-bus";
 import { SELECTION_MIN } from "@/lib/constants";
-import { CompareDeck } from "@/components/compare/CompareDeck";
+import { getRecommendedSize, getStatus } from "@/lib/size";
+import { useInventory } from "@/lib/useInventory";
+import { CompareDeck, type SizeInfo } from "@/components/compare/CompareDeck";
 import { PositionIndicator } from "@/components/compare/PositionIndicator";
 import { AlignmentOverlay } from "@/components/compare/AlignmentOverlay";
 
@@ -19,7 +21,9 @@ export default function ComparePage() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const deck = useAppStore((s) => s.deck);
   const deckIndex = useAppStore((s) => s.deckIndex);
+  const deckStartedAt = useAppStore((s) => s.deckStartedAt);
   const bag = useAppStore((s) => s.bag);
+  const sizeProfile = useAppStore((s) => s.sizeProfile);
   const setDeckIndex = useAppStore((s) => s.setDeckIndex);
   const removeItem = useAppStore((s) => s.removeItem);
   const addToBag = useAppStore((s) => s.addToBag);
@@ -28,6 +32,44 @@ export default function ComparePage() {
   const swipeCount = useRef(0);
   const decided = useRef(false);
   const exitReason = useRef("left_compare");
+
+  const products = useMemo(
+    () => deck.map((id) => PRODUCTS_BY_ID.get(id)).filter((p) => p !== undefined),
+    [deck],
+  );
+
+  // Resolved once per product list, not per poll — recommendation is pure
+  // local data (size-wedge skill concern 1), unrelated to inventory.
+  const recommendationBySku = useMemo(() => {
+    const map: Record<string, ReturnType<typeof getRecommendedSize>> = {};
+    for (const p of products) map[p.id] = getRecommendedSize(sizeProfile, p.brand);
+    return map;
+  }, [products, sizeProfile]);
+
+  const recommendedMetaBySku = useMemo(() => {
+    const map: Record<string, { size: string; brand: string }> = {};
+    for (const p of products) {
+      const rec = recommendationBySku[p.id];
+      if (rec) map[p.id] = { size: rec.size, brand: p.brand };
+    }
+    return map;
+  }, [products, recommendationBySku]);
+
+  // Hooks must run unconditionally (before the early-return guard below) —
+  // deck is [] pre-hydration, which is a harmless empty poll.
+  const { inventory, loaded } = useInventory(deck, deckStartedAt, recommendedMetaBySku);
+
+  const sizeInfoBySku: Record<string, SizeInfo> = useMemo(() => {
+    const map: Record<string, SizeInfo> = {};
+    for (const p of products) {
+      const recommendation = recommendationBySku[p.id];
+      map[p.id] = {
+        recommendation,
+        status: !recommendation ? "available" : !loaded ? "loading" : getStatus(inventory, p.id, recommendation.size),
+      };
+    }
+    return map;
+  }, [products, recommendationBySku, inventory, loaded]);
 
   // R3: /compare redirects to /wishlist if the set has fewer than 2 items.
   // Gated on hasHydrated — before rehydration, `deck` is briefly the
@@ -71,7 +113,6 @@ export default function ComparePage() {
     return <div className="min-h-full" />;
   }
 
-  const products = deck.map((id) => PRODUCTS_BY_ID.get(id)).filter((p) => p !== undefined);
   const clampedIndex = Math.min(deckIndex, products.length - 1);
 
   function handleBack() {
@@ -135,6 +176,7 @@ export default function ComparePage() {
           swipeCount.current += 1;
         }}
         bag={bag}
+        sizeInfoBySku={sizeInfoBySku}
         onAddToBag={handleAddToBag}
         onRemove={handleRemove}
         onOpenProduct={handleOpenProduct}

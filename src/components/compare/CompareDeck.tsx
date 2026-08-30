@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useMotionValue, animate, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product } from "../../../data/schema.ts";
+import type { AvailabilityStatus, SizeRecommendation } from "@/lib/size";
 import { CompareCard } from "@/components/compare/CompareCard";
 import { track } from "@/lib/track";
 
@@ -11,11 +12,17 @@ const SPRING = { type: "spring" as const, stiffness: 320, damping: 34 };
 const VELOCITY_THRESHOLD = 500;
 const DISPLACEMENT_RATIO = 0.3;
 
+export interface SizeInfo {
+  recommendation: SizeRecommendation | null;
+  status: AvailabilityStatus | "loading";
+}
+
 interface CompareDeckProps {
   products: Product[];
   index: number;
   onIndexChange: (i: number) => void;
   bag: string[];
+  sizeInfoBySku: Record<string, SizeInfo>;
   onAddToBag: (sku: string, dwellMs: number) => void;
   onRemove: (sku: string) => void;
   onOpenProduct: (sku: string) => void;
@@ -33,6 +40,7 @@ export function CompareDeck({
   index,
   onIndexChange,
   bag,
+  sizeInfoBySku,
   onAddToBag,
   onRemove,
   onOpenProduct,
@@ -103,6 +111,8 @@ export function CompareDeck({
                 product={product}
                 isActive={i === index}
                 bagged={bag.includes(product.id)}
+                recommendation={sizeInfoBySku[product.id]?.recommendation ?? null}
+                sizeStatus={sizeInfoBySku[product.id]?.status ?? "loading"}
                 onAddToBag={(dwellMs) => onAddToBag(product.id, dwellMs)}
                 onRemove={() => onRemove(product.id)}
                 onOpenProduct={() => onOpenProduct(product.id)}

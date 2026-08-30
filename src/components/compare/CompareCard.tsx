@@ -1,18 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Product } from "../../../data/schema.ts";
 import { ATTRIBUTE_ROWS, type AttributeRowKey } from "@/lib/constants";
+import type { AvailabilityStatus, SizeRecommendation } from "@/lib/size";
+import { track } from "@/lib/track";
 import { PriceLine } from "@/components/ui/PriceLine";
 import { RatingPill } from "@/components/ui/RatingPill";
-import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
+import { SkeletonText } from "@/components/ui/Skeleton";
 import { CardActions } from "@/components/compare/CardActions";
+import { SizeWedge } from "@/components/compare/SizeWedge";
+import { SizeGuideSheet } from "@/components/compare/SizeGuideSheet";
 
 interface CompareCardProps {
   product: Product;
   isActive: boolean;
   bagged: boolean;
+  recommendation: SizeRecommendation | null;
+  sizeStatus: AvailabilityStatus | "loading";
   onAddToBag: (dwellMs: number) => void;
   onRemove: () => void;
   onOpenProduct: () => void;
@@ -26,24 +32,49 @@ interface CompareCardProps {
  * pinned outside that scroll area so Add to Bag is never scrolled away
  * (RULES E3).
  *
- * The size (R4) and review-summary (R5) rows are skeletons here — Phase 6
- * and Phase 7 replace them with SizeWedge and ReviewSummary respectively.
- * A skeleton is not a placeholder for "unfinished"; it's the same
- * loading-state contract those rows use once real data is async, so this
- * card doesn't change shape when that lands.
+ * The review-summary row is still a skeleton — Phase 7 replaces it with
+ * ReviewSummary.
  */
 export function CompareCard({
   product,
   isActive,
   bagged,
+  recommendation,
+  sizeStatus,
   onAddToBag,
   onRemove,
   onOpenProduct,
 }: CompareCardProps) {
   const activeSince = useRef(Date.now());
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+
   useEffect(() => {
     if (isActive) activeSince.current = Date.now();
   }, [isActive]);
+
+  useEffect(() => {
+    if (sizeStatus === "loading") return;
+    track("size_wedge_viewed", {
+      sku: product.id,
+      status: recommendation ? sizeStatus : "no_signal",
+      hasSignal: !!recommendation,
+    });
+    // fire once per resolved status, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sizeStatus, !!recommendation]);
+
+  function handleSizeWedgeTap() {
+    track("size_wedge_tapped", {
+      sku: product.id,
+      status: recommendation ? sizeStatus : "no_signal",
+    });
+    if (!recommendation) setSizeGuideOpen(true);
+  }
+
+  const disabledReason =
+    sizeStatus === "unavailable" && recommendation
+      ? `Unavailable in your size (${recommendation.size})`
+      : undefined;
 
   function renderRow(key: AttributeRowKey) {
     switch (key) {
@@ -86,9 +117,19 @@ export function CompareCard({
         return <RatingPill rating={product.rating} ratingCount={product.ratingCount} />;
       case "size":
         return (
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-[52px] w-full rounded-lg" />
-          </div>
+          <>
+            <SizeWedge
+              recommendation={recommendation}
+              status={sizeStatus}
+              onTap={handleSizeWedgeTap}
+            />
+            <SizeGuideSheet
+              open={sizeGuideOpen}
+              onClose={() => setSizeGuideOpen(false)}
+              category={product.category}
+              brand={product.brand}
+            />
+          </>
         );
       case "fit":
         return <LabeledValue label="Fit" value={product.fit} />;
@@ -101,6 +142,7 @@ export function CompareCard({
           <CardActions
             product={product}
             bagged={bagged}
+            disabledReason={disabledReason}
             onAddToBag={() => onAddToBag(Date.now() - activeSince.current)}
             onRemove={onRemove}
             onOpenProduct={onOpenProduct}
