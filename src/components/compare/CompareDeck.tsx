@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useMotionValue, animate, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Product } from "../../../data/schema.ts";
+import type { Product, Summary } from "../../../data/schema.ts";
 import type { AvailabilityStatus, SizeRecommendation } from "@/lib/size";
 import { CompareCard } from "@/components/compare/CompareCard";
 import { track } from "@/lib/track";
@@ -23,6 +23,7 @@ interface CompareDeckProps {
   onIndexChange: (i: number) => void;
   bag: string[];
   sizeInfoBySku: Record<string, SizeInfo>;
+  summaryBySku: Record<string, Summary | undefined>;
   onAddToBag: (sku: string, dwellMs: number) => void;
   onRemove: (sku: string) => void;
   onOpenProduct: (sku: string) => void;
@@ -41,6 +42,7 @@ export function CompareDeck({
   onIndexChange,
   bag,
   sizeInfoBySku,
+  summaryBySku,
   onAddToBag,
   onRemove,
   onOpenProduct,
@@ -113,6 +115,7 @@ export function CompareDeck({
                 bagged={bag.includes(product.id)}
                 recommendation={sizeInfoBySku[product.id]?.recommendation ?? null}
                 sizeStatus={sizeInfoBySku[product.id]?.status ?? "loading"}
+                summary={summaryBySku[product.id]}
                 onAddToBag={(dwellMs) => onAddToBag(product.id, dwellMs)}
                 onRemove={() => onRemove(product.id)}
                 onOpenProduct={() => onOpenProduct(product.id)}

@@ -6,6 +6,7 @@ import { PRODUCTS } from "@/lib/catalog";
 import { useAppStore, filterByCategory, type ViewCategory } from "@/lib/store";
 import { track } from "@/lib/track";
 import { showToast } from "@/lib/toast-bus";
+import { prefetchSummaries } from "@/lib/useSummaries";
 import { CategoryTabs } from "@/components/wishlist/CategoryTabs";
 import { CompareCTA } from "@/components/wishlist/CompareCTA";
 import { ProductTile } from "@/components/wishlist/ProductTile";
@@ -53,7 +54,13 @@ export default function WishlistPage() {
 
   function handleConfirm() {
     const skus = confirmSelection();
-    if (skus) router.push("/compare");
+    if (skus) {
+      // ARCHITECTURE §2: fire the summarize POST the moment selection is
+      // confirmed, while the deck-entry animation plays, not after
+      // /compare mounts.
+      prefetchSummaries(skus);
+      router.push("/compare");
+    }
   }
 
   function handleRemove(sku: string) {

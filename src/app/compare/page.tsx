@@ -10,6 +10,7 @@ import { showToast } from "@/lib/toast-bus";
 import { SELECTION_MIN } from "@/lib/constants";
 import { getRecommendedSize, getStatus } from "@/lib/size";
 import { useInventory } from "@/lib/useInventory";
+import { useSummaries } from "@/lib/useSummaries";
 import { CompareDeck, type SizeInfo } from "@/components/compare/CompareDeck";
 import { PositionIndicator } from "@/components/compare/PositionIndicator";
 import { AlignmentOverlay } from "@/components/compare/AlignmentOverlay";
@@ -58,6 +59,7 @@ export default function ComparePage() {
   // Hooks must run unconditionally (before the early-return guard below) —
   // deck is [] pre-hydration, which is a harmless empty poll.
   const { inventory, loaded } = useInventory(deck, deckStartedAt, recommendedMetaBySku);
+  const { summaries: summaryBySku } = useSummaries(deck);
 
   const sizeInfoBySku: Record<string, SizeInfo> = useMemo(() => {
     const map: Record<string, SizeInfo> = {};
@@ -177,6 +179,7 @@ export default function ComparePage() {
         }}
         bag={bag}
         sizeInfoBySku={sizeInfoBySku}
+        summaryBySku={summaryBySku}
         onAddToBag={handleAddToBag}
         onRemove={handleRemove}
         onOpenProduct={handleOpenProduct}

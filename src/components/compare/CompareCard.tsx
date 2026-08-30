@@ -2,16 +2,16 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import type { Product } from "../../../data/schema.ts";
+import type { Product, Summary } from "../../../data/schema.ts";
 import { ATTRIBUTE_ROWS, type AttributeRowKey } from "@/lib/constants";
 import type { AvailabilityStatus, SizeRecommendation } from "@/lib/size";
 import { track } from "@/lib/track";
 import { PriceLine } from "@/components/ui/PriceLine";
 import { RatingPill } from "@/components/ui/RatingPill";
-import { SkeletonText } from "@/components/ui/Skeleton";
 import { CardActions } from "@/components/compare/CardActions";
 import { SizeWedge } from "@/components/compare/SizeWedge";
 import { SizeGuideSheet } from "@/components/compare/SizeGuideSheet";
+import { ReviewSummary } from "@/components/compare/ReviewSummary";
 
 interface CompareCardProps {
   product: Product;
@@ -19,6 +19,7 @@ interface CompareCardProps {
   bagged: boolean;
   recommendation: SizeRecommendation | null;
   sizeStatus: AvailabilityStatus | "loading";
+  summary: Summary | undefined;
   onAddToBag: (dwellMs: number) => void;
   onRemove: () => void;
   onOpenProduct: () => void;
@@ -41,6 +42,7 @@ export function CompareCard({
   bagged,
   recommendation,
   sizeStatus,
+  summary,
   onAddToBag,
   onRemove,
   onOpenProduct,
@@ -136,7 +138,7 @@ export function CompareCard({
       case "material":
         return <LabeledValue label="Material" value={product.material} />;
       case "reviews":
-        return <SkeletonText lines={3} />;
+        return <ReviewSummary sku={product.id} summary={summary} />;
       case "actions":
         return (
           <CardActions
