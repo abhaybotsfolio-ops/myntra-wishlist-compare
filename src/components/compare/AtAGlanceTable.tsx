@@ -53,7 +53,10 @@ export function AtAGlanceTable({
         }}
       </Row>
       <Row rowKey="delivery" cols={cols} label="Delivery" products={products} activeIndex={activeIndex} last>
-        {(p) => p.deliveryEstimate.replace(/^Delivery by /, "")}
+        {/* "Delivery by Sat, Sep 5" -> "Sep 5" — the weekday is redundant
+            in a 3-4 column comparison row and just adds width; the date
+            alone is what's actually being compared (D12). */}
+        {(p) => p.deliveryEstimate.replace(/^Delivery by (?:\w+, )?/, "")}
       </Row>
     </div>
   );

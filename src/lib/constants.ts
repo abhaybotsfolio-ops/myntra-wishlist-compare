@@ -30,3 +30,9 @@ export const SUMMARY_TIMEOUT_MS = 35000;
 /** Categories that exist anywhere in the UI. RULES B1 — nothing else, ever. */
 export const CATEGORIES = ["shirts", "pants"] as const;
 export type Category = (typeof CATEGORIES)[number];
+
+/** DECISIONS.md D12 — a platform-wide policy, not a per-product signal (no
+ * `returnPolicy` field exists on Product, and none should: it doesn't vary
+ * by SKU in this catalog, so showing it identically for every column in
+ * DetailsTable is a real fact, not a per-item fabrication). */
+export const RETURN_POLICY = "14 days";

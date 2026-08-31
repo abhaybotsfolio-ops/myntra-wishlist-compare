@@ -546,6 +546,27 @@ a dense matrix") without hiding which specific facts drove the two shown.
   labels ... this is much easier to understand than a dense matrix"), with the wireframe as
   supporting context, not a request to re-lay out Fit/Fabric/Delivery from scratch.
 
+## D12 — Returns row added to "Why you might choose this"; delivery date stripped of weekday
+
+Operator feedback: "in why you might choose add - return policy also - mention date no day to
+keep it clean." Two changes:
+
+**Returns row.** D8/D11 had both declined to add this (no `returnPolicy` field on `Product`,
+and inventing a per-SKU value would be the same fabrication RULES.md polices for sizing and
+review summaries). The operator has now explicitly asked for it, which resolves that ambiguity
+— but the fabrication concern only applies to a value that's *supposed* to vary by item and is
+being guessed. A returns window is, in this catalog, a genuine platform-wide policy that
+doesn't vary by SKU at all, so rather than add a schema field and fabricate per-product values,
+`RETURN_POLICY` is a single shared constant (`src/lib/constants.ts`) rendered identically in
+every column of the new `returns` row in `DetailsTable`. Same category of fact as "no coupons
+anywhere" — a real, uniform store policy, not a per-item guess.
+
+**Delivery date, no weekday.** `AtAGlanceTable`'s Delivery row already stripped the "Delivery
+by " prefix (D8); the regex now also drops the leading weekday ("Sat, "), so "Delivery by Sat,
+Sep 5" renders as "Sep 5" instead of "Sat, Sep 5" — matches the operator's "keep it clean" ask
+directly, and the weekday was redundant information taking up column width that's tighter with
+3-4 products side by side.
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user
