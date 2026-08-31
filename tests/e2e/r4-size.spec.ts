@@ -30,7 +30,7 @@ test.describe("R4 — size wedge", () => {
   test("4.2 available/unavailable status is shown for the recommended size", async ({ page }) => {
     // Roadster -> M, pre-seeded as out of stock from the start
     await selectByLabel(page, ["Roadster Slim Fit Cotton Casual Shirt", "Highlander"]);
-    await expect(page.getByText("Size M out of stock")).toBeVisible();
+    await expect(page.getByText("AI-recommended size M out of stock")).toBeVisible();
   });
 
   test("4.3 the recommendation displays its basis", async ({ page }) => {
@@ -42,8 +42,8 @@ test.describe("R4 — size wedge", () => {
     await selectByLabel(page, ["Roadster Slim Fit Cotton Casual Shirt", "Highlander"]);
     await expect(page.getByText("Size guide")).toBeVisible();
     // no fabricated size badge for Highlander anywhere on its card
-    await expect(page.getByText(/Your size \S+ (available|only a few left)/)).toHaveCount(0);
-    await expect(page.getByText("Size M out of stock")).toHaveCount(1); // only Roadster's
+    await expect(page.getByText(/AI-recommended size \S+ · (available|only a few left)/)).toHaveCount(0);
+    await expect(page.getByText("AI-recommended size M out of stock")).toHaveCount(1); // only Roadster's
   });
 
   test("4.5 an item unavailable in the user's size stays in the deck, readable, not filtered", async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe("R4 — size wedge", () => {
     await expect(page.getByText("1 of 2")).toBeVisible(); // deck still has both — Roadster (unavailable) is card 1
     await expect(page.getByText("Roadster", { exact: true })).toBeVisible();
     await expect(page.getByText("Slim Fit Cotton Casual Shirt")).toBeVisible();
-    await expect(page.getByText("Size M out of stock")).toBeVisible(); // fully readable, size line intact
+    await expect(page.getByText("AI-recommended size M out of stock")).toBeVisible(); // fully readable, size line intact
   });
 
   test("4.6 Add to Bag is disabled with a stated reason when the recommended size is unavailable", async ({ page }) => {
@@ -74,7 +74,7 @@ test.describe("R4 — size wedge", () => {
     // (no further reload) cross the threshold and detect the real
     // transition — the same mechanism a live session uses.
     await selectByLabel(page, ["HERE&NOW Tapered Fit Linen Shirt", "Highlander"]);
-    await expect(page.getByText("Your size S available")).toBeVisible();
+    await expect(page.getByText("AI-recommended size S · available")).toBeVisible();
 
     await page.evaluate(() => {
       const raw = JSON.parse(sessionStorage.getItem("myntra-compare-session")!);
@@ -82,12 +82,13 @@ test.describe("R4 — size wedge", () => {
       sessionStorage.setItem("myntra-compare-session", JSON.stringify(raw));
     });
     await page.reload();
-    await expect(page.getByText("Your size S available")).toBeVisible(); // real baseline established post-reload
+    await expect(page.getByText("AI-recommended size S · available")).toBeVisible(); // real baseline established post-reload
 
-    // toast is ephemeral (auto-dismisses); check it before the size-line
-    // state, which persists in the DOM and can safely be checked after
-    await expect(page.getByRole("status")).toContainText("out of stock", { timeout: 15_000 });
-    await expect(page.getByText("Size S out of stock")).toBeVisible();
+    // No toast on this transition (removed per operator feedback — an
+    // unprompted "just went out of stock" alert read as a confusing,
+    // out-of-place interruption). The in-place size-line update is the
+    // whole point of this test now.
+    await expect(page.getByText("AI-recommended size S out of stock")).toBeVisible({ timeout: 15_000 });
   });
 
   test("4.8 polling pauses when the tab is hidden", async ({ page }) => {

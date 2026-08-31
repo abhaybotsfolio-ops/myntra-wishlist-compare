@@ -48,11 +48,19 @@ other, which is the real risk in this shape.
 | 3.3 | Tap navigation advances the deck | auto |
 | 3.4 | Position indicator shows both dots and "N of M", always visible | auto |
 | 3.5 | The carousel's icon/leader-chip header row never pushes a card's image out of vertical alignment with its siblings | auto — asserts identical `getBoundingClientRect().top` for every slide's image, regardless of how many leader chips that card has |
-| 3.6 | The At a glance table's rows are ordered Price, Rating, Your size, Delivery | auto |
+| 3.6 | The At a glance table's rows are ordered Price, Rating, AI size, Delivery | auto |
 | 3.7 | A no-signal item's size renders an em-dash in the table, never blank or a guessed size | auto |
 | 3.8 | Deck and index survive backgrounding | auto — `page.evaluate` a visibilitychange, reload from sessionStorage, assert state |
 
 ## R4 — Size wedge · `tests/e2e/r4-size.spec.ts`
+
+**DECISIONS.md D9 note:** the recommendation is now labelled "AI-recommended size" everywhere
+it appears (`SizeLine`, the At a glance table's row label, the "Our pick for you" reasoning) —
+operator feedback, a copy change only, the underlying logic (`getRecommendedSize`) is
+unchanged. 4.7's toast ("Size X just went out of stock...") was also removed per operator
+feedback — an unprompted alert on a session the user didn't initiate read as a confusing
+interruption rather than a helpful cue; the in-place size-line/table update on its own still
+demonstrates the live-update mechanic.
 
 | # | Check | Method |
 |---|---|---|
@@ -62,7 +70,7 @@ other, which is the real risk in this shape.
 | 4.4 | A brand with no size signal renders the general size guide, not a guessed size | auto — assert the no-signal SKU shows the guide and no size badge |
 | 4.5 | An item unavailable in the user's size **stays in the deck**, readable, not filtered | auto |
 | 4.6 | Add to Bag is disabled with a stated reason when the recommended size is unavailable | auto |
-| 4.7 | **Stock change mid-session updates the wedge in place** | auto — advance clock past the 15s scripted event, assert badge transition + toast |
+| 4.7 | **Stock change mid-session updates the size line in place** | auto — advance clock past the 15s scripted event, assert the in-place status transition (no toast — see D9) |
 | 4.8 | Polling pauses when the tab is hidden | manual — devtools network panel |
 
 ## R5 — Review summary · `tests/e2e/r5-reviews.spec.ts`

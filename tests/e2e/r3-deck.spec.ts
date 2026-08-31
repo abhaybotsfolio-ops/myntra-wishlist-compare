@@ -52,7 +52,7 @@ test.describe("R3 — comparison deck", () => {
     expect(dotCount).toBe(3);
   });
 
-  test("3.6 the At a glance table's rows are ordered Price, Rating, Your size, Delivery", async ({ page }) => {
+  test("3.6 the At a glance table's rows are ordered Price, Rating, AI size, Delivery", async ({ page }) => {
     await buildDeck(page, "Shirts", 2);
     const table = page.getByTestId("at-a-glance-table");
     const rowKeys = await table.locator("[data-row]").evaluateAll((els) => els.map((el) => el.getAttribute("data-row")));

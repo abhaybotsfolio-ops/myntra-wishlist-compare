@@ -391,6 +391,36 @@ contradicted decisions already load-bearing elsewhere in this build:
   already used for the wishlist tile's Add-to-Bag pill: a 44×44 invisible hit area around a
   visually smaller (36px) circle, so the compact aesthetic and the tap-target rule both hold.
 
+## D9 — Post-launch feedback: carousel centering bug, "AI-recommended" size copy, dropped the stock-change toast
+
+Three small, operator-directed fixes made after actually using the D8-rebuilt compare screen,
+none of them PRD-silence judgement calls.
+
+- **A real centering bug.** `CompareCarousel.tsx`'s width measurement (`containerRef.current.
+  offsetWidth`) was taken on the same element that also carried `px-9` horizontal padding.
+  Tailwind's preflight sets `box-sizing: border-box`, so `offsetWidth` already includes that
+  padding — every slide was sized 72px too wide (390px instead of the true 318px content
+  width) and its centered content drifted right by exactly half that, 36px, matching what the
+  operator actually saw. Fixed by removing the padding from the measured container entirely —
+  it wasn't protecting anything: the 44px prev/next arrows sit at `left-1`/`right-1` (4px from
+  the true edge), well clear of the ~150px-wide centered slide content even at zero padding.
+- **"AI-recommended size", not "Your size".** Operator feedback: the size line, the At a
+  glance table's row label ("Your size" → "AI size"), and the "Our pick for you" reasoning
+  sentence all now say "AI-recommended size" — a copy change only. `lib/size.ts`'s
+  `getRecommendedSize` and everything it's built on (purchase history / return signals, RULES
+  C3's honesty rule) are unchanged; this only renames how the result is presented, the same
+  way many products label a rules-based personalization result "AI" for the shopper without
+  that changing the underlying mechanism or its accuracy guarantees.
+- **Dropped the stock-change toast.** `useInventory.ts` used to pair the scripted mid-session
+  stock-drop (R4.7, DECISIONS.md D4) with a toast — "Size X just went out of stock for the Y
+  item". Operator feedback: an alert appearing unprompted, mid-session, for an action the user
+  never took read as a confusing interruption rather than a helpful live-update cue ("why is
+  there a sudden prompt"). The toast call was removed; the underlying poll, the
+  `stock_changed_in_session` tracking, and the scripted event resolution (`stock-simulator.ts`)
+  are all unchanged — `SizeLine` and `AtAGlanceTable` still flip to the unavailable state in
+  place when the event fires, which is what actually demonstrates "this isn't a static page,"
+  just without the interruption. `docs/ACCEPTANCE.md` 4.7 updated to match.
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user

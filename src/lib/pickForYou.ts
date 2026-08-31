@@ -3,7 +3,7 @@ import type { AvailabilityStatus, SizeRecommendation } from "./size";
 
 export interface PickForYou {
   productId: string;
-  reasons: string[]; // e.g. ["your size M is in stock", "rated 4.5★ from 5,230 reviews", "₹600 cheaper than the Van Heusen"]
+  reasons: string[]; // e.g. ["your AI-recommended size M is in stock", "rated 4.5★ from 5,230 reviews", "₹600 cheaper than the Van Heusen"]
 }
 
 interface SizeInfoLike {
@@ -46,7 +46,7 @@ export function computePickForYou(
   const bestSizeInfo = sizeInfoBySku[best.id];
   if (bestSizeInfo?.recommendation && bestSizeInfo.status !== "unavailable" && bestSizeInfo.status !== "loading") {
     const label = bestSizeInfo.status === "low" ? "only a few left" : "in stock";
-    reasons.push(`your size ${bestSizeInfo.recommendation.size} is ${label}`);
+    reasons.push(`your AI-recommended size ${bestSizeInfo.recommendation.size} is ${label}`);
   }
   reasons.push(`rated ${best.rating.toFixed(1)}★ from ${best.ratingCount.toLocaleString("en-IN")}+ reviews`);
 

@@ -40,7 +40,7 @@ export function AtAGlanceTable({
       <Row rowKey="rating" cols={cols} label="Rating" products={products} activeIndex={activeIndex}>
         {(p) => `${p.rating.toFixed(1)}★`}
       </Row>
-      <Row rowKey="size" cols={cols} label="Your size" products={products} activeIndex={activeIndex}>
+      <Row rowKey="size" cols={cols} label="AI size" products={products} activeIndex={activeIndex}>
         {(p) => {
           const info = sizeInfoBySku[p.id];
           if (!info?.recommendation) return <span className="text-ink-faint">—</span>;

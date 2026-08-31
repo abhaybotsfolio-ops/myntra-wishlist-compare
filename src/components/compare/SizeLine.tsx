@@ -52,7 +52,7 @@ export function SizeLine({
     return (
       <div data-testid="size-line" className="mt-2 flex flex-col items-center gap-0.5">
         <p className="flex items-center gap-1 text-[12px] font-bold text-negative">
-          <X className="h-3.5 w-3.5" /> Size {recommendation.size} out of stock
+          <X className="h-3.5 w-3.5" /> AI-recommended size {recommendation.size} out of stock
         </p>
         {/* RULES C3 — the basis always shows alongside a recommendation,
             regardless of stock status; dropping it here was a real
@@ -73,7 +73,7 @@ export function SizeLine({
   return (
     <div data-testid="size-line" className="mt-2 flex flex-col items-center gap-0.5">
       <p className="flex items-center gap-1 text-[12px] font-bold text-positive-text">
-        <Check className="h-3.5 w-3.5" /> Your size {recommendation.size} {label}
+        <Check className="h-3.5 w-3.5" /> AI-recommended size {recommendation.size} · {label}
       </p>
       <p className="text-[10px] text-ink-faint">{recommendation.basis}</p>
     </div>

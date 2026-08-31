@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import type { Inventory } from "../../data/schema.ts";
 import { INVENTORY_POLL_MS } from "./constants";
 import { track } from "./track";
-import { showToast } from "./toast-bus";
 
 interface RecommendedMeta {
   size: string;
@@ -17,9 +16,16 @@ interface RecommendedMeta {
  * hook's consumer there), paused whenever the tab is hidden — no timer
  * runs at all while hidden, not just a skipped fetch, so ACCEPTANCE 4.8's
  * "check the network panel" has literally nothing to see. Diffs against
- * the previous poll and only fires stock_changed_in_session / the toast
- * for the size a card actually cares about (its recommended size), not
- * every size that happens to move.
+ * the previous poll and fires stock_changed_in_session for the size a
+ * card actually cares about (its recommended size), not every size that
+ * happens to move — the size line/table update in place from that diff.
+ *
+ * No toast on this transition (there was one — "Size X just went out of
+ * stock for the Y item" — removed per operator feedback: an unprompted
+ * toast interrupting a session the user didn't initiate read as a
+ * confusing, out-of-place alert rather than a helpful live-update cue.
+ * The in-place UI change (SizeLine flipping to unavailable) still
+ * demonstrates the same "this isn't a static page" point on its own.
  */
 export function useInventory(
   skus: string[],
@@ -52,11 +58,6 @@ export function useInventory(
           const nextUnits = sizes[meta.size];
           if (prevUnits !== undefined && nextUnits !== undefined && prevUnits !== nextUnits) {
             track("stock_changed_in_session", { sku, size: meta.size, from: prevUnits, to: nextUnits });
-            if (nextUnits <= 0 && prevUnits > 0) {
-              showToast(`Size ${meta.size} just went out of stock for the ${meta.brand} item`, {
-                tone: "warning",
-              });
-            }
           }
         }
         prevRef.current = data.inventory;

@@ -110,8 +110,17 @@ export function CompareCarousel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, width]);
 
+  // No horizontal padding on the measured container below — `width` is its
+  // own offsetWidth (padding included, since Tailwind's preflight sets
+  // border-box), and each slide is sized to exactly that. Padding on this
+  // element would make every slide wider than the true viewport and shift
+  // its centered content right by the padding amount — found live: the
+  // product was visibly off-center by exactly the old px-9 (36px). The
+  // arrows (44px tap target, positioned at left-1/right-1) clear the
+  // ~150px-wide centered content with plenty of room without needing
+  // reserved padding.
   return (
-    <div ref={containerRef} data-testid="compare-carousel" className="relative mt-3 overflow-hidden px-9">
+    <div ref={containerRef} data-testid="compare-carousel" className="relative mt-3 overflow-hidden">
       {width > 0 && (
         <motion.div
           className="flex"
