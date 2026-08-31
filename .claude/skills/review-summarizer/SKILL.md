@@ -41,8 +41,9 @@ SKU list on the client before posting.
 
 ## Prompt
 
-Model `gemini-2.0-flash` via the plain REST endpoint (`POST
-generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=…`) —
+Model `gemini-3.6-flash` (Google retired `gemini-2.0-flash` after this project was originally
+built — DECISIONS.md D10) via the plain REST endpoint (`POST
+generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=…`) —
 call it with `fetch`, no SDK dependency (Phase 0's dependency list is exhaustive). Request
 body: `generationConfig: { temperature: 0.3, responseMimeType: 'application/json' }`. That
 `responseMimeType` field is Gemini's equivalent of Groq/OpenAI's `response_format: {type:

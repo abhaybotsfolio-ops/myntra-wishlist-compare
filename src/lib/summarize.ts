@@ -3,7 +3,11 @@ import { getFallbackSummary, getProduct } from "./catalog";
 import { REVIEW_THRESHOLD, SUMMARY_TIMEOUT_MS } from "./constants";
 import { z } from "zod";
 
-const GEMINI_MODEL = "gemini-2.0-flash";
+// gemini-2.0-flash was retired by Google after this project was originally
+// built — confirmed live via a 404 from the API itself ("This model
+// models/gemini-2.0-flash is no longer available... use
+// models/gemini-3.6-flash"), not a guess. DECISIONS.md D10.
+const GEMINI_MODEL = "gemini-3.6-flash";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const SAMPLE_CAP = 40;
 

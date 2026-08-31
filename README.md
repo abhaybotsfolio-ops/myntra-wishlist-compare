@@ -142,6 +142,6 @@ npx vercel env add GEMINI_API_KEY production && npx vercel --prod   # redeploy s
 
 Next.js 15 (App Router, TypeScript strict) · Tailwind CSS v4 · framer-motion · Zustand
 (`persist` on sessionStorage) · Zod · lucide-react · Manrope (`next/font/google`, self-hosted
-at build time) · Google Gemini (`gemini-2.0-flash`, via plain `fetch`, no SDK) · Vercel ·
+at build time) · Google Gemini (`gemini-3.6-flash`, via plain `fetch`, no SDK) · Vercel ·
 Playwright. No database — everything is seed JSON plus session state, by design (`CLAUDE.md`
 §3).

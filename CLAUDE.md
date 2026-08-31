@@ -46,7 +46,7 @@ comparison screen without review summaries or an Add to Bag button does not demo
 | Animation / swipe | `framer-motion` | Drag-to-swipe with velocity + snap, no custom gesture math |
 | State | Zustand with `persist` middleware (sessionStorage) | Satisfies R3's session-persistence criterion for free |
 | Icons | `lucide-react` | |
-| LLM | Google Gemini (`gemini-2.0-flash`) via a Next.js Route Handler, called with plain `fetch` (no SDK) | Free tier, fast enough for a swipe interaction — **operator-directed substitution for the spec's original Groq choice; see DECISIONS.md** |
+| LLM | Google Gemini (`gemini-3.6-flash`) via a Next.js Route Handler, called with plain `fetch` (no SDK) | Free tier, fast enough for a swipe interaction — **operator-directed substitution for the spec's original Groq choice; model name updated after Google retired gemini-2.0-flash; see DECISIONS.md** |
 | Images | `next/image` over locally committed files in `/public/products` | No CDN rot, no hotlinking |
 | Deploy | Vercel | Matches the reference MVP |
 | Package manager | `npm` | |

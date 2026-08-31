@@ -421,6 +421,39 @@ none of them PRD-silence judgement calls.
   place when the event fires, which is what actually demonstrates "this isn't a static page,"
   just without the interruption. `docs/ACCEPTANCE.md` 4.7 updated to match.
 
+## D10 — Live Gemini deployment debugging: two real, unrelated causes, found by adding a temporary diagnostic endpoint rather than guessing
+
+Not a judgement call — a debugging log, kept because the method is worth recording along with
+the result. After deploying (D8/D9) and adding `GEMINI_API_KEY` on Vercel, `/api/summarize`
+kept returning `source: "fallback"` in production with zero server-side errors logged, which
+made the two real causes underneath it genuinely ambiguous from the outside — the fallback
+path is deliberately silent and indistinguishable-by-design from a working-but-unused key
+(RULES: "nothing in the UI announces a failure"). Rather than keep guessing across several
+rounds of "check the Vercel dashboard," a temporary route,
+`src/app/api/debug-gemini/route.ts`, was added and deployed — it reports whether
+`process.env.GEMINI_API_KEY` is present (boolean/length only, never the value) and, if so,
+makes one real Gemini call and returns Gemini's own raw HTTP status and body. This turned two
+rounds of back-and-forth into two direct, conclusive answers:
+
+1. **`hasKey: false`.** The key had been added under Vercel's **Development** environment
+   (Vercel's current dashboard splits Production/Preview/Development into separate
+   environment-scoped variable sets, not one list with checkboxes), not Production — so the
+   live deployment's runtime never saw it at all, regardless of how many times it was
+   redeployed. Fixed by adding the same variable under the Production environment specifically.
+2. **`hasKey: true`, but a live 404 from Gemini itself**: `"This model models/gemini-2.0-flash
+   is no longer available... use models/gemini-3.6-flash."` Google retired the model this
+   project was built against sometime after the original build. `lib/summarize.ts`'s
+   `GEMINI_MODEL` constant (and the now-deleted diagnostic route, and every doc that named the
+   model — `CLAUDE.md`'s stack table, `README.md`'s Stack section, the `review-summarizer`
+   skill) updated to `gemini-3.6-flash` — confirmed against the API's own error message, not
+   guessed. `DECISIONS.md` D0 (the original Groq→Gemini choice) is left as-is since it's an
+   accurate record of that decision at the time it was made; this entry is the update, not a
+   rewrite of history.
+
+The diagnostic route was deleted once both were confirmed fixed — it was never part of the
+shipped feature set (RULES F5), and leaving a public, unauthenticated endpoint that triggers a
+real Gemini API call on every hit isn't something to leave running in "production."
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user
