@@ -421,7 +421,7 @@ none of them PRD-silence judgement calls.
   place when the event fires, which is what actually demonstrates "this isn't a static page,"
   just without the interruption. `docs/ACCEPTANCE.md` 4.7 updated to match.
 
-## D10 — Live Gemini deployment debugging: four real, stacked causes, found by adding a temporary diagnostic endpoint rather than guessing
+## D10 — Live Gemini deployment debugging: five stacked causes, found by adding a temporary diagnostic endpoint rather than guessing
 
 Not a judgement call — a debugging log, kept because the method is worth recording along with
 the result. After deploying (D8/D9) and adding `GEMINI_API_KEY` on Vercel, `/api/summarize`
@@ -434,7 +434,7 @@ and progressively deepened as each layer was peeled back — first reporting whe
 `process.env.GEMINI_API_KEY` was present at all, then replicating `summarize.ts`'s exact
 request shape, then finally calling its real internal functions directly against a real SKU's
 real reviews (bypassing `resolveSummary`'s cache) so each failure could be seen, not guessed
-at. Four real, independent causes stacked on top of each other:
+at. Four real, independent causes (plus a fifth, self-inflicted one) stacked on top of each other:
 
 1. **`hasKey: false`.** The key had been added under Vercel's **Development** environment
    (Vercel's current dashboard splits Production/Preview/Development into separate
@@ -479,8 +479,20 @@ gap rather than quietly edited to look met — the fallback-first design (RULES:
 broken/empty state) means a slow or failed live call is invisible to the shopper either way,
 just slower to get the "real" summary than the original spec assumed.
 
+**A fifth, self-inflicted cause, confirmed last**: after causes 1–4 were fixed and two fresh
+SKUs had independently confirmed `source: "llm"` with real themes, two more fresh SKUs tested
+minutes later suspiciously returned `source: "fallback"` almost instantly (under 1.5s — far too
+fast for a call that genuinely reaches Gemini, which takes 20–40s per cause 3). A last,
+minimal diagnostic call confirmed why: `HTTP 429`, `"You exceeded your current quota"` — the
+debugging session's own rapid succession of real Gemini calls (the structured-output tests, the
+`debugSummarizeAttempt` tests, and the `/api/summarize` tests, all within about 15 minutes) had
+burned through the free-tier rate limit. Not a bug: the fallback path handled it exactly as
+designed, silently and without a broken UI. Left unfixed on purpose — it's an artifact of this
+session's own test traffic volume, not of real usage, and clears on its own as the quota window
+resets.
+
 The diagnostic route (and `lib/summarize.ts`'s temporary `debugSummarizeAttempt` export it
-depended on) was deleted once all four were confirmed fixed end-to-end — it was never part of
+depended on) was deleted once all causes were confirmed and understood — it was never part of
 the shipped feature set (RULES F5), and leaving a public, unauthenticated endpoint that
 triggers a real Gemini API call on every hit isn't something to leave running in "production."
 
