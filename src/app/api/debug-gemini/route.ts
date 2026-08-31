@@ -10,6 +10,7 @@ import { debugSummarizeAttempt } from "@/lib/summarize";
 // design). Delete this file and lib/summarize.ts's debugSummarizeAttempt
 // export once diagnosed.
 export const dynamic = "force-dynamic";
+export const maxDuration = 45; // match /api/summarize's ceiling, not the platform default
 
 export async function GET() {
   const sku = "shirt-roadster-002"; // "thin" band, 9 reviews — above threshold, never tested via UI yet

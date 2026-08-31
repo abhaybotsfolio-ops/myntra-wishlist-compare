@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { getReviews } from "@/lib/catalog";
 import { resolveSummary } from "@/lib/summarize";
 
-export const maxDuration = 15; // ship-to-vercel skill — this is a POST with a real LLM call
+// ship-to-vercel skill — this is a POST with a real LLM call. gemini-3.6-flash
+// "thinks" by default and doesn't support disabling it for this task
+// (confirmed live — DECISIONS.md D10), so this needs real headroom above
+// SUMMARY_TIMEOUT_MS (lib/constants.ts), not just above a bare API call.
+export const maxDuration = 45;
 
 export async function POST(request: Request) {
   let skus: string[] = [];

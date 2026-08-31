@@ -111,12 +111,13 @@ async function callGemini(systemPrompt: string, userPrompt: string, apiKey: stri
           responseSchema: RESPONSE_SCHEMA,
           // gemini-3.6-flash "thinks" (extended internal reasoning) by
           // default — confirmed live, its response carries a
-          // thoughtSignature even for this short extractive task — which
-          // is most of why real calls were exceeding a 6s/15s timeout.
-          // This task needs none of that: it's a bounded extraction over
-          // a fixed set of reviews, not open-ended reasoning. Disabling it
-          // is a real latency fix, not just a bigger timeout. DECISIONS.md D10.
-          thinkingConfig: { thinkingBudget: 0 },
+          // thoughtSignature even for this short extractive task.
+          // thinkingConfig.thinkingBudget: 0 was tried to disable it but
+          // this model rejects that value outright (400 INVALID_ARGUMENT,
+          // confirmed live) — unlike some other Gemini generations, this
+          // one doesn't support turning thinking off for this tier/mode.
+          // SUMMARY_TIMEOUT_MS/the route's maxDuration are sized to give
+          // it room instead. DECISIONS.md D10.
         },
       }),
     });

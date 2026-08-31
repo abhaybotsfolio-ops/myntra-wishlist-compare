@@ -20,13 +20,12 @@ export const LOW_STOCK_MAX_UNITS = 2;
 /** review-summarizer skill — per-SKU Gemini call timeout before falling back.
  * Was 6000ms, tuned for gemini-2.0-flash. gemini-3.6-flash — the model that
  * replaced it after Google retired 2.0-flash — "thinks" (extended internal
- * reasoning) by default, which routinely exceeded even a bumped 15000ms;
- * disabling that in the request itself (see callGemini's thinkingConfig)
- * is the real fix. This stays under the API route's own `maxDuration = 15`
- * (seconds) with real margin — the two were previously set to the exact
- * same value, racing the platform's own kill at the same instant instead
- * of this code's own honest fallback ever winning. DECISIONS.md D10. */
-export const SUMMARY_TIMEOUT_MS = 12000;
+ * reasoning) by default and, confirmed live, doesn't support disabling that
+ * for this task (rejects thinkingConfig.thinkingBudget: 0 outright). Given
+ * real headroom here instead, well under the API route's own
+ * `maxDuration = 45` (seconds) so this code's own honest fallback can
+ * always win over a raw platform kill. DECISIONS.md D10. */
+export const SUMMARY_TIMEOUT_MS = 35000;
 
 /** Categories that exist anywhere in the UI. RULES B1 — nothing else, ever. */
 export const CATEGORIES = ["shirts", "pants"] as const;
