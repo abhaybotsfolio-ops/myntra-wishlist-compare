@@ -280,6 +280,117 @@ were approved):**
   selector started resolving to the (locked, disabled) filter pill instead. Fixed by scoping
   to the checkbox's `aria-label` prefix, which only a wishlist tile has.
 
+## D8 — Compare screen rebuilt to match an operator-supplied HTML prototype, including an explicit override of RULES B3
+
+The operator attached a standalone HTML/CSS/JS prototype (`myntra_compare_prototype.html`) —
+a real Myntra-style compare flow with its own colour palette, typeface, and information
+architecture — and asked for the app's UI to match it. Two questions were put back to the
+operator before touching anything, because the prototype's actual shape and content
+contradicted decisions already load-bearing elsewhere in this build:
+
+1. **Compare screen structure.** The prototype uses a compact swipeable carousel (thumbnail,
+   brand, price, rating, size — nothing else) plus a separate comparison table below it,
+   not the full-height per-card attribute stack CLAUDE.md's hard rule #6 and RULES E1/E2
+   describe ("Attribute rows must align pixel-for-pixel across every card"). The operator
+   chose to rebuild to the prototype's shape rather than restyle the existing architecture.
+2. **The prototype's "Our pick for you" card.** A literal automated recommendation with
+   reasoning, in direct conflict with RULES B3 / CLAUDE.md §2's explicit, hard,
+   "non-negotiable" constraint: *"No automated 'winner' or 'best pick' badge. The feature
+   presents evidence; the user decides."* The operator explicitly chose to override this
+   rule, understanding the conflict, rather than have it dropped or softened. This is
+   recorded here per RULES.md's own statement that an explicit operator instruction takes
+   precedence over the spec (the same authority already exercised once, for D0's Groq→Gemini
+   substitution) — it is not a judgement call made on the app's own initiative, and
+   `docs/ACCEPTANCE.md` X.2 is updated in place to point back here rather than left silently
+   contradicted.
+
+**What was actually rebuilt:**
+
+- **Design tokens** (`src/app/globals.css`) rebased on the prototype's palette — Manrope
+  (`next/font/google`, self-hosted at build time, no runtime call to Google's CDN — RULES D4)
+  replaces the system font stack; `--color-brand` stays `#ff3f6c` (the prototype's pink is
+  identical); `--color-ink`/`--color-canvas`/`--color-line` move to the prototype's near-black/
+  near-white/hairline values. Several of the prototype's *raw* hex values fail WCAG AA as real
+  text — its `--faint` is 2.34:1 against white, `--muted` 4.27:1, `--green` 3.67:1 (3.33:1
+  against its own tint) — computed directly (relative luminance / contrast ratio, same formula
+  D6 used) and darkened the same way D6 already handled this exact class of problem: keep the
+  prototype's hue, add real margin above 4.5:1 against both `--color-surface` and
+  `--color-canvas`. `--color-ink-muted` and `--color-ink-faint` in particular needed enough
+  separation from each other, after darkening, to still read as two distinct tiers rather than
+  converging on the same grey.
+- **Wishlist tile**: restyled to the prototype's rounded-card-with-border language and
+  moved the selection circle from top-right to top-left (prototype convention) — the richer
+  tile content added earlier this session (rating badge, delivery estimate, Add-to-Bag pill,
+  icon row — see the wishlist-redesign commits) was kept and reskinned, not reverted; the
+  prototype's own tile is simpler, but the operator's ask here was visual-language alignment,
+  not a feature rollback.
+- **`src/components/compare/CompareCarousel.tsx`** replaces `CompareDeck.tsx`/`CompareCard.tsx`
+  — same framer-motion drag mechanics (drag="x", dragElastic 0.12, snap on velocity>500 or
+  displacement>30%, spring `{stiffness:320, damping:34}`), but each slide is now a compact
+  identity card (~150px wide: image, brand/title, `RatingPill` in a green-tint pill, price,
+  `SizeLine`, a "See product" link) instead of a full attribute stack. `AlignmentOverlay.tsx`
+  and `ATTRIBUTE_ROWS`/`AttributeRowKey` (`lib/constants.ts`) are retired along with them —
+  the mechanic they existed to protect (per-card row alignment) no longer has a per-card row
+  system to protect.
+- **`AtAGlanceTable.tsx`** (Price/Rating/Your size/Delivery) and **`DetailsTable.tsx`**
+  (Fit/Material/Sizes) replace `SummaryStrip.tsx` — real per-item values in a CSS grid, not a
+  min–max range summary, with the column matching the carousel's centered card highlighted in
+  pink-tint. The prototype's table also shows Colour/Occasion/Key-features/Returns rows; none
+  of those exist in this app's `Product` schema, and inventing shallow one-line values to match
+  the reference more literally would be exactly the class of fabrication RULES.md polices
+  elsewhere (never a guessed size, never an invented review theme) — so those rows were left
+  out rather than invented, and only real, already-modeled fields made the table.
+- **`SizeLine.tsx`** replaces `SizeWedge.tsx` for the carousel — same four states (no-signal /
+  loading / unavailable / available-or-low), same RULES C3 honesty rule (basis string always
+  shown alongside a real recommendation, in *every* non-loading branch, including
+  unavailable — a real regression caught while rewriting the acceptance suite: an earlier
+  version of this file dropped the basis text specifically on the unavailable branch), just
+  laid out for a ~150px slide instead of a 76px full-width row. A "Notify me when {size} is
+  back" affordance was added on the unavailable branch (matching the prototype) — it raises a
+  toast only, no real notification backend exists or is implied to a degree beyond what the
+  copy says; this is the same class of harmless, honestly-scoped micro-interaction as the
+  header's decorative bag icon.
+- **Two-tier removal**, matching the prototype: the heart icon unsaves from the wishlist
+  entirely (cascading out of the active comparison too, via the existing `removeItem`); the
+  new X icon (`removeFromDeck` in `lib/store.ts`) removes from *this comparison only*, leaving
+  the item on the wishlist. Both actions' toasts carry an "Undo" affordance (also new —
+  `toast-bus.ts`'s `ToastMessage` gained optional `actionLabel`/`onAction` fields, rendered by
+  `Toast.tsx`), restoring the item to its exact pre-removal index in the wishlist and/or deck
+  arrays via new `restoreWishlistItem`/`restoreDeckItem` store actions. Neither `removeFromDeck`
+  nor the Undo restores fire a new `AnalyticsEvent` variant — same reasoning as `moveToBag`
+  and `share` before them (RULES F6 keeps that vocabulary fixed and tied to PRD metrics, and
+  none of these are PRD metrics).
+- **Add to Bag** moved from one button per card to a single sticky button at the page level,
+  acting on whichever card is currently centered in the carousel — still satisfies RULES E3
+  (pinned, reachable without scrolling) and CLAUDE.md's hard rules #7/#8 (removing/adding
+  never exits or advances comparison), just structurally simpler now that there's one deck-
+  level action surface instead of N per-card ones. The prototype also has a "Buy now" button
+  alongside "Add to cart" — dropped; CLAUDE.md §2 rules out "real payments, real checkout"
+  outright, and there is nothing behind a Buy Now button in this app that isn't already
+  behind Add to Bag.
+- **`lib/pickForYou.ts`** — the operator-overridden recommendation itself. Mirrors the
+  prototype's algorithm (prefer items available in the shopper's size, falling back to the
+  full set if none are; highest rating, tie-broken by lower price) but every reason shown is
+  computed from real deck data (`recommendation`/`status`, `rating`/`ratingCount`, a real price
+  delta against a real more-expensive item in the set) — the override is about *whether* a
+  verdict is shown at all, not a license to fabricate the reasoning behind it. `PickForYouCard`
+  renders it in its own clearly-labeled "OUR PICK FOR YOU" section, visually and structurally
+  separate from the neutral per-attribute leader chips, so a reviewer (or a test) can't
+  mistake the two for the same mechanic.
+- Leader chips ("Lowest price" / "Best rated") — unchanged in logic (`lib/compareStats.ts`,
+  untouched by this rebuild) but re-homed onto the carousel slide's header row instead of the
+  old card's price/rating rows. A real layout bug was found and fixed while building this: the
+  header row initially absolutely-positioned the heart/X icons and the leader chip(s)
+  independently, and a card with two stacked chips ("Lowest price" + "Best rated" on the same
+  item) had its chip text visually collide with both icons — fixed by rebuilding the row as an
+  ordinary flex row (icon / chip column / icon) instead of absolute overlays, so 0, 1, or 2
+  chips can never collide with the icons regardless of how much text they hold.
+- A second real bug, same root cause pattern as D5: the heart/X/prev/next icon buttons were
+  initially sized at their *visual* 36px, under RULES E7/X.7's 44×44 tap-target minimum,
+  caught by the rewritten `x-cross-cutting.spec.ts` X.7 sweep. Fixed with the same pattern
+  already used for the wishlist tile's Add-to-Bag pill: a 44×44 invisible hit area around a
+  visually smaller (36px) circle, so the compact aesthetic and the tap-target rule both hold.
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user

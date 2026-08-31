@@ -32,15 +32,24 @@ Write each spec **during** the phase that implements it, not at the end.
 
 ## R3 — Comparison deck · `tests/e2e/r3-deck.spec.ts`
 
+**DECISIONS.md D8 note:** the compare screen was rebuilt around a compact swipeable carousel
+plus a shared comparison table below it (operator-directed, matching a reference HTML
+prototype), replacing the original full-height per-card attribute stack. 3.5/3.6 below are
+updated to describe the mechanic that actually ships — a CSS grid table guarantees column
+alignment natively, so there's no separate per-card pixel-alignment system to verify the way
+there was; what's tested instead is that the table itself is structured correctly, and that the
+carousel's own header row (icons + leader chips) can't push cards out of alignment with each
+other, which is the real risk in this shape.
+
 | # | Check | Method |
 |---|---|---|
-| 3.1 | Each selected item renders as its own card; deck length equals selection count | auto |
+| 3.1 | Each selected item renders as its own carousel slide; deck length equals selection count | auto |
 | 3.2 | Drag-swipe advances the deck | auto — `mouse.move` drag with velocity |
 | 3.3 | Tap navigation advances the deck | auto |
 | 3.4 | Position indicator shows both dots and "N of M", always visible | auto |
-| 3.5 | **Attribute rows align across all cards** | auto — for each row `data-row` key, assert `getBoundingClientRect().top` is identical (±1px) on card 1 and card N |
-| 3.6 | Row order matches `ATTRIBUTE_ROWS` exactly, with the size wedge between price and reviews | auto |
-| 3.7 | Missing attribute values render an em-dash without collapsing the row | auto |
+| 3.5 | The carousel's icon/leader-chip header row never pushes a card's image out of vertical alignment with its siblings | auto — asserts identical `getBoundingClientRect().top` for every slide's image, regardless of how many leader chips that card has |
+| 3.6 | The At a glance table's rows are ordered Price, Rating, Your size, Delivery | auto |
+| 3.7 | A no-signal item's size renders an em-dash in the table, never blank or a guessed size | auto |
 | 3.8 | Deck and index survive backgrounding | auto — `page.evaluate` a visibilitychange, reload from sessionStorage, assert state |
 
 ## R4 — Size wedge · `tests/e2e/r4-size.spec.ts`
@@ -90,7 +99,7 @@ Write each spec **during** the phase that implements it, not at the end.
 | # | Check | Method |
 |---|---|---|
 | X.1 | No coupon, discount nudge, notification, or urgency mechanic anywhere | manual — RULES B2 |
-| X.2 | No "winner", "best pick", or recommendation badge anywhere | manual — RULES B3 |
+| X.2 | ~~No "winner", "best pick", or recommendation badge anywhere~~ — **superseded, DECISIONS.md D8**: the operator explicitly directed a "Pick for you" card overriding this rule. The leader chips (lowest price / best rated) remain within RULES B3's own parenthetical (a neutral, per-attribute factual marker) and are covered by `tests/e2e/compare-leader-chips.spec.ts`'s "never use ranking/verdict language" check, scoped to exclude the now-approved pick card. | manual — RULES B3, as amended by D8 |
 | X.3 | No category other than Shirts and Pants appears in any surface | auto — grep the rendered DOM |
 | X.4 | No `myntassets` or `myntra.com` string in the repo | auto — `grep -ri` in CI script |
 | X.5 | App runs with zero env vars set | auto — build and run clean |

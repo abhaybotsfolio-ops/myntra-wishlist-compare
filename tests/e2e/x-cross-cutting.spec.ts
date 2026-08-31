@@ -17,9 +17,14 @@ test.describe("Cross-cutting", () => {
 
     await buildDeck(page, "Shirts", 3);
     await page.getByRole("button", { name: "Next item" }).click();
-    const activeCard = page.locator('[data-card-active="true"]');
-    await activeCard.getByRole("button", { name: "Add to Bag" }).click();
-    await activeCard.getByRole("button", { name: "Remove from wishlist" }).click();
+    await page.getByRole("button", { name: "Add to Bag" }).click();
+    // Scoped to the currently-active card — the carousel positions
+    // off-screen slides via a CSS transform (framer-motion's `x`), not
+    // native scroll, so Playwright can't scroll an inactive slide's heart
+    // icon into view; `.first()` on an unscoped locator can resolve to one.
+    await page
+      .locator('[data-card-active="true"] button[aria-label^="Remove "][aria-label$=" from wishlist"]')
+      .click();
     await page.getByRole("button", { name: "Back to wishlist" }).click().catch(() => {});
 
     expect(errors, `console errors: ${errors.join("\n")}`).toEqual([]);

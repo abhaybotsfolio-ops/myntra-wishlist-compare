@@ -55,7 +55,7 @@ export function ProductTile({
 
   const imageBox = (
     <div
-      className={`relative aspect-[3/4] w-full overflow-hidden rounded bg-canvas ${
+      className={`relative aspect-[3/4] w-full overflow-hidden rounded-[10px] bg-canvas ${
         outOfStock ? "opacity-60 grayscale" : ""
       }`}
     >
@@ -92,8 +92,8 @@ export function ProductTile({
   if (mode === "selecting") {
     return (
       <div
-        className={`relative rounded-lg p-1.5 transition-colors ${
-          selected ? "bg-brand-tint ring-2 ring-brand" : "opacity-80"
+        className={`relative rounded-xl border p-1.5 transition-colors ${
+          selected ? "border-brand bg-brand-tint" : "border-line opacity-80"
         }`}
       >
         <button
@@ -108,8 +108,8 @@ export function ProductTile({
         </button>
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute right-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 ${
-            selected ? "border-brand bg-brand" : "border-surface bg-surface/90"
+          className={`pointer-events-none absolute left-3 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 ${
+            selected ? "border-brand bg-brand" : "border-surface bg-ink/35"
           } shadow-card`}
         >
           {selected && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
@@ -119,7 +119,7 @@ export function ProductTile({
   }
 
   return (
-    <div className="relative rounded-lg p-1.5">
+    <div className="relative rounded-xl border border-line p-1.5">
       <div className="relative">
         <Link href={href} className="block">
           {imageBox}

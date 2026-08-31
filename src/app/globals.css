@@ -2,32 +2,41 @@
 
 /*
  * Myntra Wishlist Comparison — design tokens.
- * Source of truth: .claude/skills/myntra-ui/SKILL.md
  *
- * Deliberately no dark-mode block: Myntra is a bright, flat, high-density
- * retail UI, and the myntra-ui skill rules dark mode out explicitly.
+ * Palette rebased on an operator-supplied HTML prototype
+ * (myntra_compare_prototype.html — see DECISIONS.md D8) rather than the
+ * original myntra-ui skill doc. Several of the prototype's raw hex values
+ * fail WCAG AA as real text (its --faint is 2.34:1 against white, --muted
+ * 4.27:1, --green 3.67:1) — darkened here the same way D6 already handled
+ * this exact class of problem, keeping the prototype's hue/character but
+ * with real contrast margin. Verified against both --color-surface (white)
+ * and --color-canvas, since text sits on both.
+ *
+ * Deliberately no dark-mode block: this is a bright, flat, high-density
+ * retail UI, and dark mode was never part of the brief.
  */
 @theme {
-  --color-brand: #ff3f6c; /* primary CTA, active states */
-  --color-brand-dark: #e0234e; /* pressed */
-  --color-brand-tint: #fff0f4; /* selected backgrounds */
-  --color-ink: #282c3f; /* primary text — Myntra's near-navy, not black */
-  --color-ink-muted: #535766; /* secondary text */
-  --color-ink-faint: #6f7077; /* tertiary, struck MRP, metadata — darkened from the skill's #94969f (2.95:1, fails WCAG 4.5:1) since this token is used as real small text throughout, not just decoration */
-  --color-line: #eaeaec; /* hairlines, dividers, card borders */
+  --color-brand: #ff3f6c; /* primary CTA, active states — unchanged, matches the prototype's --pink exactly */
+  --color-brand-dark: #d91f49; /* pressed / text-safe pink — prototype's --pink-deep, 4.95:1 vs white */
+  --color-brand-tint: #fff0f3; /* selected backgrounds — prototype's --pink-tint */
+  --color-ink: #14141a; /* primary text — prototype's --ink, a truer near-black than the old navy */
+  --color-ink-muted: #585c6b; /* secondary text — darkened from the prototype's --muted #767a8a (4.27:1, fails) to 6.65:1 vs white / 6.11:1 vs canvas */
+  --color-ink-faint: #6e7079; /* tertiary, struck MRP, metadata — darkened from the prototype's --faint #a6a9b4 (2.34:1, fails badly) to 4.93:1 vs white / 4.53:1 vs canvas */
+  --color-line: #eaeaee; /* hairlines, dividers, card borders — prototype's --line */
   --color-surface: #ffffff;
-  --color-canvas: #f5f5f6; /* page background behind cards */
-  --color-discount: #a55d3a; /* discount % — darkened from the skill's #ff905a: that value is 2.2:1 against white/canvas, well under WCAG's 4.5:1 for text this size (Lighthouse a11y audit, ACCEPTANCE X.8). Still reads as orange-red, just legible. */
-  --color-positive: #03a685; /* in stock, rating pill, positive theme — background tints/dots/icon fills only; see --color-positive-text for anywhere this is the text color itself */
-  --color-positive-text: #027c63; /* same hue, darkened for 4.5:1 as actual text (e.g. "Added to Bag") rather than a tint/dot/icon */
-  --color-warning: #f2a03d; /* low stock — background tints/dots only, never text */
-  --color-negative: #d43d51; /* unavailable, negative theme */
+  --color-canvas: #f5f5f7; /* page background behind cards — prototype's --bg */
+  --color-discount: #d91f49; /* discount % — reuses brand-dark; the prototype's own .disc uses plain --pink (3.40:1, fails as text), so this substitutes the text-safe pink instead */
+  --color-positive: #14958f; /* in stock, rating pill, positive theme — prototype's --green. Background tints/dots/icon fills only (3:1 threshold); see --color-positive-text for anywhere this is the text color */
+  --color-positive-text: #107a75; /* same hue, darkened for 4.5:1+ as actual text against both white and --color-positive-tint */
+  --color-positive-tint: #e8f7f6; /* prototype's --green-tint — the rating pill's pill background */
+  --color-warning: #f2a03d; /* low stock — background tints/dots only, never text. Unchanged: the prototype has no low-stock state to reference, this is already contrast-safe for its existing non-text uses */
+  --color-negative: #d91f49; /* unavailable, negative theme — reuses brand-dark; matches the prototype's .size-line.no, already 4.95:1 safe as text */
 
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+    var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --shadow-card: 0 2px 8px rgb(40 44 63 / 0.08);
+  --shadow-card: 0 2px 8px rgb(20 20 26 / 0.08);
 }
 
 html,

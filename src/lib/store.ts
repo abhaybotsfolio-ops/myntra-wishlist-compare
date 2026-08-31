@@ -48,6 +48,9 @@ interface AppState {
   confirmSelection: () => string[] | null;
   setDeckIndex: (i: number) => void;
   removeItem: (sku: string, fromSurface: string) => RemoveResult;
+  removeFromDeck: (sku: string) => RemoveResult;
+  restoreWishlistItem: (sku: string, atIndex: number) => void;
+  restoreDeckItem: (sku: string, atIndex: number) => void;
   addToBag: (sku: string, fromSurface: string, dwellMs: number) => void;
   moveToBag: (sku: string, fromSurface: string) => RemoveResult;
 }
@@ -132,6 +135,45 @@ export const useAppStore = create<AppState>()(
         });
         track("remove_from_wishlist", { sku, fromSurface, remaining: newWishlist.length });
         return { deckBelowMin: wasInDeck && newDeck.length < SELECTION_MIN, remaining: newDeck.length };
+      },
+
+      // D8: two-tier removal, matching the reference prototype — this is
+      // "remove from this comparison" only (the X icon), distinct from
+      // removeItem's "unsave from wishlist entirely" (the heart icon). The
+      // item stays on the wishlist. No new AnalyticsEvent variant, same
+      // reasoning as moveToBag/share (RULES F6) — this is presentation-
+      // layer plumbing, not a PRD success metric.
+      removeFromDeck: (sku) => {
+        const { deck, deckIndex } = get();
+        const wasInDeck = deck.includes(sku);
+        const removedIndex = deck.indexOf(sku);
+        const newDeck = deck.filter((id) => id !== sku);
+        let newDeckIndex = deckIndex;
+        if (wasInDeck) {
+          if (removedIndex < deckIndex) newDeckIndex -= 1;
+          newDeckIndex = Math.min(newDeckIndex, Math.max(newDeck.length - 1, 0));
+        }
+        set({ deck: newDeck, deckIndex: newDeckIndex });
+        return { deckBelowMin: wasInDeck && newDeck.length < SELECTION_MIN, remaining: newDeck.length };
+      },
+
+      // Undo support for the snackbar pattern — the caller captures the
+      // item and its pre-removal index before calling removeItem/
+      // removeFromDeck, then hands both back here if Undo is tapped. A
+      // no-op if the item is somehow already present (double-tap safety).
+      restoreWishlistItem: (sku, atIndex) => {
+        const { wishlist } = get();
+        if (wishlist.includes(sku)) return;
+        const next = [...wishlist];
+        next.splice(Math.min(atIndex, next.length), 0, sku);
+        set({ wishlist: next });
+      },
+      restoreDeckItem: (sku, atIndex) => {
+        const { deck } = get();
+        if (deck.includes(sku)) return;
+        const next = [...deck];
+        next.splice(Math.min(atIndex, next.length), 0, sku);
+        set({ deck: next });
       },
 
       addToBag: (sku, fromSurface, dwellMs) => {

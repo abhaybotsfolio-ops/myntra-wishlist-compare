@@ -40,9 +40,21 @@ function ToastViewport() {
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.18 }}
             role="status"
-            className={`pointer-events-auto max-w-[320px] rounded-lg px-4 py-3 text-center text-[13px] font-medium shadow-card ${TONE_CLASSES[t.tone]}`}
+            className={`pointer-events-auto flex max-w-[320px] items-center justify-between gap-3 rounded-lg px-4 py-3 text-[13px] font-medium shadow-card ${TONE_CLASSES[t.tone]}`}
           >
-            {t.text}
+            <span>{t.text}</span>
+            {t.actionLabel && t.onAction && (
+              <button
+                type="button"
+                className="shrink-0 font-bold text-brand underline-offset-2 hover:underline"
+                onClick={() => {
+                  t.onAction?.();
+                  remove(t.id);
+                }}
+              >
+                {t.actionLabel}
+              </button>
+            )}
           </motion.div>
         ))}
       </AnimatePresence>

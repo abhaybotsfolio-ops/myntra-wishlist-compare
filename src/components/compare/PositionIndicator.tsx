@@ -2,7 +2,7 @@
 export function PositionIndicator({ index, count }: { index: number; count: number }) {
   return (
     <div className="flex flex-col items-center gap-1.5 py-2">
-      <div className="flex items-center gap-1.5" aria-hidden="true">
+      <div data-testid="position-dots" className="flex items-center gap-1.5" aria-hidden="true">
         {Array.from({ length: count }).map((_, i) => (
           <span
             key={i}

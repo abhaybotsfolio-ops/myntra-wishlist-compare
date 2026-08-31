@@ -35,8 +35,3 @@ export async function buildDeck(page: Page, category: "Shirts" | "Pants", n: num
   await confirmCompare(page);
 }
 
-export async function rowTop(page: Page, key: string, nth = 0) {
-  const box = await page.locator(`[data-row="${key}"]`).nth(nth).boundingBox();
-  if (!box) throw new Error(`row ${key}[${nth}] has no bounding box`);
-  return box.y;
-}

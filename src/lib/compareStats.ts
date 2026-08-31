@@ -50,9 +50,8 @@ function leaderFlags(
 /**
  * Pure, deck-wide derivation — computed once per (products, sizeInfoBySku)
  * change at the compare page level (mirrors src/lib/size.ts's pure
- * getRecommendedSize/getStatus), then threaded down through CompareDeck to
- * each CompareCard's price/rating rows, and to the once-rendered
- * SummaryStrip above the deck.
+ * getRecommendedSize/getStatus). leaderBySku feeds the carousel's leader
+ * chips (D8), the rest feeds AtAGlanceTable's Price/Rating rows.
  */
 export function computeDeckStats(
   products: Product[],

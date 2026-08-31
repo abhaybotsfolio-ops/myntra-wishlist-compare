@@ -1,29 +1,34 @@
 import { test, expect } from "@playwright/test";
-import { buildDeck, rowTop } from "./helpers";
-import { ATTRIBUTE_ROWS } from "../../src/lib/constants";
+import { buildDeck } from "./helpers";
 
+// D8: the old per-card ATTRIBUTE_ROWS/data-row pixel-alignment mechanic
+// (3.5/3.6 originally) no longer applies — the compare screen was rebuilt
+// around a compact carousel plus a shared comparison table below it. A CSS
+// grid table guarantees column alignment natively; what's tested below
+// instead is that the table's rows and columns are actually structured the
+// way the design intends (real regression coverage, not just "trust the
+// grid").
 test.describe("R3 — comparison deck", () => {
-  test("3.1 each selected item renders as its own card; deck length equals selection count", async ({ page }) => {
+  test("3.1 each selected item renders as its own carousel slide; deck length equals selection count", async ({
+    page,
+  }) => {
     await buildDeck(page, "Shirts", 3);
-    await expect(page.locator('[data-row="identity"]')).toHaveCount(3);
+    await expect(page.locator("[data-card-active]")).toHaveCount(3);
   });
 
   test("3.2 drag-swipe advances the deck", async ({ page }) => {
     await buildDeck(page, "Shirts", 3);
     await expect(page.getByText("1 of 3")).toBeVisible();
-    const deck = page.locator('[data-row="image"]').first();
-    const box = (await deck.boundingBox())!;
+    const slide = page.locator('[data-card-active="true"]').first();
+    const box = (await slide.boundingBox())!;
     const startX = box.x + box.width / 2;
-    const y = box.y + box.height / 2;
+    const y = box.y + 20;
     await page.mouse.move(startX, y);
     await page.mouse.down();
     // Paced, not a single steps:N jump straight into mouse.up() — framer
     // motion batches drag updates through its own requestAnimationFrame
-    // scheduler (verified by reading VisualElementDragControls/PanSession
-    // source directly), so the gesture needs real time between samples to
-    // be recognized as a drag at all, the same way a human's move events
-    // naturally spread across frames. A too-fast synthetic drag can end
-    // before the first frame update ever processes.
+    // scheduler, so the gesture needs real time between samples to be
+    // recognized as a drag at all.
     for (let i = 1; i <= 10; i++) {
       await page.mouse.move(startX - i * 25, y);
       await page.waitForTimeout(30);
@@ -43,49 +48,32 @@ test.describe("R3 — comparison deck", () => {
   test("3.4 position indicator shows both dots and 'N of M', always visible", async ({ page }) => {
     await buildDeck(page, "Shirts", 3);
     await expect(page.getByText(/^\d+ of \d+$/)).toBeVisible();
-    // 3 dots for a 3-item deck
-    const dots = page.locator("header").locator('div[aria-hidden="true"] > span');
-    await expect(dots).toHaveCount(3);
+    const dotCount = await page.getByTestId("position-dots").locator("> span").count();
+    expect(dotCount).toBe(3);
   });
 
-  test("3.5 attribute rows align across all cards", async ({ page }) => {
-    await buildDeck(page, "Shirts", 4);
-    for (const { key } of ATTRIBUTE_ROWS) {
-      const tops = await page.locator(`[data-row="${key}"]`).evaluateAll((els) =>
-        els.map((el) => el.getBoundingClientRect().top),
-      );
-      expect(tops).toHaveLength(4);
-      const spread = Math.max(...tops) - Math.min(...tops);
-      expect(spread, `row "${key}" misaligned: ${tops}`).toBeLessThanOrEqual(1);
-    }
-  });
-
-  test("3.6 row order matches ATTRIBUTE_ROWS exactly, size wedge between price and reviews", async ({ page }) => {
+  test("3.6 the At a glance table's rows are ordered Price, Rating, Your size, Delivery", async ({ page }) => {
     await buildDeck(page, "Shirts", 2);
-    const keys = await page
-      .locator("[data-row]")
-      .evaluateAll((els, len) => els.slice(0, len).map((el) => el.getAttribute("data-row")), ATTRIBUTE_ROWS.length);
-    expect(keys).toEqual(ATTRIBUTE_ROWS.map((r) => r.key));
-    const priceIdx = keys.indexOf("price");
-    const sizeIdx = keys.indexOf("size");
-    const reviewsIdx = keys.indexOf("reviews");
-    expect(sizeIdx).toBeGreaterThan(priceIdx);
-    expect(sizeIdx).toBeLessThan(reviewsIdx);
+    const table = page.getByTestId("at-a-glance-table");
+    const rowKeys = await table.locator("[data-row]").evaluateAll((els) => els.map((el) => el.getAttribute("data-row")));
+    expect(rowKeys).toEqual(["price", "rating", "size", "delivery"]);
   });
 
-  test("3.7 rows with no content to show never collapse (size/reviews empty states hold full height)", async ({ page }) => {
-    // The literal em-dash fallback (RULES E2) guards fit/material, which
-    // the seed schema makes required — unreachable with valid data, so
-    // this exercises the two branches that really do go empty: the
-    // no-signal size wedge and the below-threshold review summary. Both
-    // must render at their full row height, not collapse to fit their text.
-    await buildDeck(page, "Shirts", 2);
-    const sizeHeight = await rowTop(page, "size").then(async () => {
-      const box = await page.locator('[data-row="size"]').first().boundingBox();
-      return box!.height;
-    });
-    const expectedMin = ATTRIBUTE_ROWS.find((r) => r.key === "size")!.minH;
-    expect(sizeHeight).toBeGreaterThanOrEqual(expectedMin - 1);
+  test("3.7 a no-signal item's size renders an em-dash in the table, never blank or a guessed size", async ({
+    page,
+  }) => {
+    // Highlander and WROGN are the two deliberately unsignalled brands
+    // (DECISIONS.md D2) — Highlander is fully out of stock (D7) so use
+    // WROGN instead to keep this test about "no signal", not stock.
+    await page.goto("/wishlist");
+    await page.getByRole("tab", { name: "Pants" }).click();
+    await page.getByRole("button", { name: "Compare", exact: true }).click();
+    await page.locator('button[aria-label^="Select WROGN "]').click();
+    await page.locator('button[aria-label^="Select "]').first().click();
+    await page.getByRole("button", { name: /^Compare \d/ }).click();
+    await page.waitForURL("**/compare");
+    const sizeRow = page.getByTestId("at-a-glance-table").locator('[data-row="size"]');
+    await expect(sizeRow).toContainText("—");
   });
 
   test("3.8 deck and index survive backgrounding", async ({ page }) => {

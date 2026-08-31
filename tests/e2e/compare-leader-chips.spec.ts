@@ -106,37 +106,50 @@ test.describe("Leader chips — rendered against the real catalog", () => {
   // HERE&NOW Relaxed Fit (₹649, 3.6★), Roadster Slim Fit (₹899, 4.1★),
   // Van Heusen Slim Fit Wrinkle-Free (₹1,599, 4.0★) — distinct min/max on
   // two different cards, and one card with neither.
-  test("lowest price and highest rated land on the correct, distinct cards", async ({ page }) => {
+  test("lowest price and best rated land on the correct, distinct cards", async ({ page }) => {
     await buildShirtDeck(page, ["HERE&NOW Relaxed Fit Cotton Poplin Shirt", "Roadster Slim Fit Cotton Casual Shirt", "Van Heusen Slim Fit Wrinkle-Free Shirt"]);
 
     const cheapest = page.locator('[data-card-active="true"]');
     await expect(cheapest.getByText("Lowest price")).toBeVisible();
-    await expect(cheapest.getByText("Highest rated")).toHaveCount(0);
+    await expect(cheapest.getByText("Best rated")).toHaveCount(0);
 
     await page.getByRole("button", { name: "Next item" }).click();
     const middle = page.locator('[data-card-active="true"]');
-    await expect(middle.getByText("Highest rated")).toBeVisible();
+    await expect(middle.getByText("Best rated")).toBeVisible();
     await expect(middle.getByText("Lowest price")).toHaveCount(0);
 
     await page.getByRole("button", { name: "Next item" }).click();
     const last = page.locator('[data-card-active="true"]');
     await expect(last.getByText("Lowest price")).toHaveCount(0);
-    await expect(last.getByText("Highest rated")).toHaveCount(0);
+    await expect(last.getByText("Best rated")).toHaveCount(0);
   });
 
-  test("no chip anywhere ever uses ranking/verdict language", async ({ page }) => {
+  // Scoped to the carousel specifically, not the whole page — the "Our
+  // pick for you" card (DECISIONS.md D8, an explicit operator override of
+  // this same rule) legitimately uses verdict-adjacent language in its own
+  // clearly-labeled, separate section, so a page-wide sweep would flag an
+  // approved feature rather than catch a real regression. This test's job
+  // is the boundary B3's parenthetical actually draws: the per-row chips
+  // stay neutral and factual.
+  test("leader chips never use ranking/verdict language beyond the fact itself", async ({ page }) => {
     await buildShirtDeck(page, ["HERE&NOW Relaxed Fit Cotton Poplin Shirt", "Roadster Slim Fit Cotton Casual Shirt", "Van Heusen Slim Fit Wrinkle-Free Shirt"]);
-    const bodyText = await page.locator("body").innerText();
-    for (const banned of ["Best", "Recommended", "Top pick", "Winner", "Best pick"]) {
-      expect(bodyText).not.toContain(banned);
+    const carouselText = await page.getByTestId("compare-carousel").innerText();
+    for (const banned of ["Recommended", "Top pick", "Winner", "Our pick"]) {
+      expect(carouselText).not.toContain(banned);
     }
   });
 
-  test("price/rating rows stay pixel-aligned across cards even with a chip on only one", async ({ page }) => {
+  test("the header row (heart / chips / remove) never pushes the image out of alignment across cards", async ({
+    page,
+  }) => {
+    // Regression guard for a real bug found during development: a chip
+    // present on some cards and absent on others briefly pushed the image
+    // below it to different heights per card before the header row was
+    // rebuilt as a flex row instead of absolute-positioned overlays.
     await buildShirtDeck(page, ["HERE&NOW Relaxed Fit Cotton Poplin Shirt", "Roadster Slim Fit Cotton Casual Shirt", "Van Heusen Slim Fit Wrinkle-Free Shirt"]);
-    const priceTops = await page.locator('[data-row="price"]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
-    const ratingTops = await page.locator('[data-row="rating"]').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
-    expect(new Set(priceTops).size).toBe(1); // every card's price row starts at the same y
-    expect(new Set(ratingTops).size).toBe(1);
+    const imgTops = await page
+      .locator('[data-card-active] img')
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
+    expect(new Set(imgTops).size).toBe(1);
   });
 });

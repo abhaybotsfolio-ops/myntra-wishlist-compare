@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ShoppingBag } from "lucide-react";
+import { Check, ChevronLeft, ShoppingBag } from "lucide-react";
 import { PRODUCTS } from "@/lib/catalog";
 import { useAppStore } from "@/lib/store";
 import { track } from "@/lib/track";
@@ -12,16 +12,22 @@ import { getRecommendedSize, getStatus } from "@/lib/size";
 import { useInventory } from "@/lib/useInventory";
 import { useSummaries } from "@/lib/useSummaries";
 import { computeDeckStats } from "@/lib/compareStats";
-import { CompareDeck, type SizeInfo } from "@/components/compare/CompareDeck";
+import { computePickForYou } from "@/lib/pickForYou";
+import { CompareCarousel, type SizeInfo } from "@/components/compare/CompareCarousel";
 import { PositionIndicator } from "@/components/compare/PositionIndicator";
-import { AlignmentOverlay } from "@/components/compare/AlignmentOverlay";
-import { SummaryStrip } from "@/components/compare/SummaryStrip";
+import { AtAGlanceTable } from "@/components/compare/AtAGlanceTable";
+import { DetailsTable } from "@/components/compare/DetailsTable";
+import { PickForYouCard } from "@/components/compare/PickForYouCard";
+import { ReviewSummary } from "@/components/compare/ReviewSummary";
+import { SizeGuideSheet } from "@/components/compare/SizeGuideSheet";
+import { Button } from "@/components/ui/Button";
 
 const PRODUCTS_BY_ID = new Map(PRODUCTS.map((p) => [p.id, p]));
 
 export default function ComparePage() {
   const router = useRouter();
   const hasHydrated = useAppStore((s) => s.hasHydrated);
+  const wishlist = useAppStore((s) => s.wishlist);
   const deck = useAppStore((s) => s.deck);
   const deckIndex = useAppStore((s) => s.deckIndex);
   const deckStartedAt = useAppStore((s) => s.deckStartedAt);
@@ -29,7 +35,12 @@ export default function ComparePage() {
   const sizeProfile = useAppStore((s) => s.sizeProfile);
   const setDeckIndex = useAppStore((s) => s.setDeckIndex);
   const removeItem = useAppStore((s) => s.removeItem);
+  const removeFromDeck = useAppStore((s) => s.removeFromDeck);
+  const restoreWishlistItem = useAppStore((s) => s.restoreWishlistItem);
+  const restoreDeckItem = useAppStore((s) => s.restoreDeckItem);
   const addToBag = useAppStore((s) => s.addToBag);
+
+  const [sizeGuideSku, setSizeGuideSku] = useState<string | null>(null);
 
   const sessionStart = useRef(Date.now());
   const swipeCount = useRef(0);
@@ -76,23 +87,18 @@ export default function ComparePage() {
   }, [products, recommendationBySku, inventory, loaded]);
 
   // Deck-wide, not per-card — computed once here (same pure-function
-  // pattern as lib/size.ts) and threaded down: leaderBySku into every
-  // CompareCard's price/rating rows, the rest into the SummaryStrip above
-  // the deck. Recomputes automatically if the scripted stock event flips a
-  // card's sizeStatus mid-session, since it depends on sizeInfoBySku.
+  // pattern as lib/size.ts) and threaded into the carousel's leader chips
+  // and the At a glance table. Recomputes automatically if the scripted
+  // stock event flips a card's sizeStatus mid-session.
   const deckStats = useMemo(() => computeDeckStats(products, sizeInfoBySku), [products, sizeInfoBySku]);
+
+  // D8 — operator-directed override of RULES B3, see DECISIONS.md.
+  const pick = useMemo(() => computePickForYou(products, sizeInfoBySku), [products, sizeInfoBySku]);
 
   // R3: /compare redirects to /wishlist if the set has fewer than 2 items.
   // Gated on hasHydrated — before rehydration, `deck` is briefly the
   // pre-session default ([]), which would otherwise false-positive redirect
   // on every fresh load before sessionStorage catches up.
-  //
-  // Checked once (ref-guarded), not on every deck.length change: dropping
-  // below the minimum via Remove is already handled explicitly in
-  // handleRemove below, with its own toast explaining why. This effect is
-  // only for "arrived at /compare with an already-insufficient deck" —
-  // direct navigation or a stale session — so re-running it on every
-  // removal would just be a second, unexplained redirect racing the first.
   const redirectChecked = useRef(false);
   useEffect(() => {
     if (!hasHydrated || redirectChecked.current) return;
@@ -103,11 +109,6 @@ export default function ComparePage() {
   }, [hasHydrated, router]);
 
   useEffect(() => {
-    // Deliberately reading refs at cleanup time, not at effect-setup time:
-    // this fires exactly once, on unmount, and needs whatever the *latest*
-    // swipe/decided/reason values are at that moment — a dependency array
-    // would instead fire on every update to those refs, which they don't
-    // even trigger re-renders for.
     /* eslint-disable react-hooks/exhaustive-deps */
     return () => {
       track("comparison_exited", {
@@ -125,38 +126,82 @@ export default function ComparePage() {
   }
 
   const clampedIndex = Math.min(deckIndex, products.length - 1);
+  const activeProduct = products[clampedIndex];
+  const activeBagged = bag.includes(activeProduct.id);
+  const activeSizeInfo = sizeInfoBySku[activeProduct.id];
+  const activeDisabledReason =
+    activeSizeInfo?.status === "unavailable" && activeSizeInfo.recommendation
+      ? `Unavailable in your size (${activeSizeInfo.recommendation.size})`
+      : undefined;
 
   function handleBack() {
     exitReason.current = "back_button";
     router.push("/wishlist");
   }
 
-  function handleAddToBag(sku: string, dwellMs: number) {
-    addToBag(sku, "compare_card", dwellMs);
+  function handleAddToBag() {
+    addToBag(activeProduct.id, "compare_card", Date.now() - sessionStart.current);
     decided.current = true;
-    const product = PRODUCTS_BY_ID.get(sku);
-    showToast(`Added ${product?.brand ?? "item"} to bag`, { tone: "neutral" });
+    showToast(`Added ${activeProduct.brand} to bag`, { tone: "neutral" });
   }
 
-  function handleRemove(sku: string) {
+  // Heart — unsave from wishlist entirely (cascades out of the deck too).
+  // Undo restores it to both lists at their pre-removal positions.
+  function handleUnsave(sku: string) {
     const product = PRODUCTS_BY_ID.get(sku);
+    const wishlistIndex = wishlist.indexOf(sku);
+    const deckIdx = deck.indexOf(sku);
     const result = removeItem(sku, "compare_card");
+    const goingBack = result.deckBelowMin;
+    if (goingBack) {
+      exitReason.current = "removed_below_minimum";
+      router.replace("/wishlist");
+    }
+    showToast(
+      `Removed ${product?.brand ?? "item"} from wishlist`,
+      goingBack
+        ? undefined
+        : {
+            actionLabel: "Undo",
+            onAction: () => {
+              restoreWishlistItem(sku, wishlistIndex);
+              restoreDeckItem(sku, deckIdx);
+            },
+          },
+    );
+  }
+
+  // X — remove from this comparison only, stays on the wishlist.
+  function handleRemoveFromCompare(sku: string) {
+    const product = PRODUCTS_BY_ID.get(sku);
+    const deckIdx = deck.indexOf(sku);
+    const result = removeFromDeck(sku);
     if (result.deckBelowMin) {
       exitReason.current = "removed_below_minimum";
       showToast(`Removed ${product?.brand ?? "item"} — only ${result.remaining} left, back to wishlist`);
       router.replace("/wishlist");
-    } else {
-      showToast(`Removed ${product?.brand ?? "item"} from comparison`);
+      return;
     }
+    showToast(`Removed ${product?.brand ?? "item"} from this comparison`, {
+      actionLabel: "Undo",
+      onAction: () => restoreDeckItem(sku, deckIdx),
+    });
+  }
+
+  function handleNotify(sku: string) {
+    const product = PRODUCTS_BY_ID.get(sku);
+    const rec = recommendationBySku[sku];
+    showToast(`We'll notify you when ${product?.brand ?? "this item"}'s size ${rec?.size ?? ""} is back`.trim());
   }
 
   function handleOpenProduct(sku: string) {
     track("pdp_opened", { sku, fromSurface: "compare_card" });
   }
 
+  const sizeGuideProduct = sizeGuideSku ? PRODUCTS_BY_ID.get(sizeGuideSku) : undefined;
+
   return (
     <div className="flex min-h-full flex-col">
-      <AlignmentOverlay />
       <header className="flex items-center justify-between px-2 pt-2">
         <button
           type="button"
@@ -166,7 +211,10 @@ export default function ComparePage() {
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <PositionIndicator index={clampedIndex} count={products.length} />
+        <div className="flex flex-col items-center">
+          <h1 className="text-[19px] font-extrabold text-ink">Compare</h1>
+          <p className="text-[11px] font-medium text-ink-muted">See what&apos;s different before you buy</p>
+        </div>
         <div className="flex h-11 w-11 items-center justify-center text-ink-muted">
           <div className="relative">
             <ShoppingBag className="h-5 w-5" />
@@ -182,23 +230,70 @@ export default function ComparePage() {
         </div>
       </header>
 
-      <SummaryStrip stats={deckStats} />
+      <div className="min-h-0 flex-1 overflow-y-auto pb-6">
+        <CompareCarousel
+          products={products}
+          index={clampedIndex}
+          onIndexChange={(i) => {
+            setDeckIndex(i);
+            swipeCount.current += 1;
+          }}
+          sizeInfoBySku={sizeInfoBySku}
+          leaderBySku={deckStats.leaderBySku}
+          onUnsave={handleUnsave}
+          onRemoveFromCompare={handleRemoveFromCompare}
+          onOpenSizeGuide={setSizeGuideSku}
+          onNotify={handleNotify}
+          onOpenProduct={handleOpenProduct}
+        />
+        <PositionIndicator index={clampedIndex} count={products.length} />
 
-      <CompareDeck
-        products={products}
-        index={clampedIndex}
-        onIndexChange={(i) => {
-          setDeckIndex(i);
-          swipeCount.current += 1;
-        }}
-        bag={bag}
-        sizeInfoBySku={sizeInfoBySku}
-        summaryBySku={summaryBySku}
-        leaderBySku={deckStats.leaderBySku}
-        onAddToBag={handleAddToBag}
-        onRemove={handleRemove}
-        onOpenProduct={handleOpenProduct}
-      />
+        <AtAGlanceTable products={products} activeIndex={clampedIndex} sizeInfoBySku={sizeInfoBySku} />
+        <DetailsTable products={products} activeIndex={clampedIndex} />
+
+        <div data-testid="review-summary-section" className="mx-4 mt-3 rounded-xl border border-line bg-surface p-3.5">
+          <h4 className="mb-2 text-[12.5px] font-extrabold text-ink">
+            What buyers say — {activeProduct.brand}
+          </h4>
+          <ReviewSummary sku={activeProduct.id} summary={summaryBySku[activeProduct.id]} />
+        </div>
+
+        {pick && PRODUCTS_BY_ID.get(pick.productId) && (
+          <PickForYouCard pick={pick} product={PRODUCTS_BY_ID.get(pick.productId)!} />
+        )}
+      </div>
+
+      <div className="shrink-0 border-t border-line bg-surface px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+        <Button
+          variant={activeBagged ? "secondary" : "primary"}
+          fullWidth
+          disabled={!!activeDisabledReason}
+          onClick={handleAddToBag}
+          className={`h-14 ${activeBagged ? "border-positive-text text-positive-text" : ""}`}
+        >
+          {activeBagged ? (
+            <>
+              <Check className="h-4 w-4" /> Added to Bag
+            </>
+          ) : (
+            <>
+              <ShoppingBag className="h-4 w-4" /> Add to Bag
+            </>
+          )}
+        </Button>
+        {activeDisabledReason && (
+          <p className="mt-1 text-center text-[11px] text-ink-faint">{activeDisabledReason}</p>
+        )}
+      </div>
+
+      {sizeGuideProduct && (
+        <SizeGuideSheet
+          open={!!sizeGuideSku}
+          onClose={() => setSizeGuideSku(null)}
+          category={sizeGuideProduct.category}
+          brand={sizeGuideProduct.brand}
+        />
+      )}
     </div>
   );
 }

@@ -11,6 +11,8 @@ export interface ToastMessage {
   text: string;
   tone: ToastTone;
   durationMs: number;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 type Listener = (toast: ToastMessage) => void;
@@ -20,14 +22,23 @@ let counter = 0;
 
 export function showToast(
   text: string,
-  opts: { tone?: ToastTone; durationMs?: number } = {},
+  opts: {
+    tone?: ToastTone;
+    durationMs?: number;
+    actionLabel?: string;
+    onAction?: () => void;
+  } = {},
 ): string {
   counter += 1;
   const toast: ToastMessage = {
     id: `toast-${counter}-${Date.now()}`,
     text,
     tone: opts.tone ?? "neutral",
-    durationMs: opts.durationMs ?? 3200,
+    // Undo-style toasts (D8, matching the reference prototype) need a
+    // little longer on screen than a plain confirmation to be tappable.
+    durationMs: opts.durationMs ?? (opts.onAction ? 4200 : 3200),
+    actionLabel: opts.actionLabel,
+    onAction: opts.onAction,
   };
   listeners.forEach((listen) => listen(toast));
   return toast.id;

@@ -4,22 +4,6 @@
  * instead of being redeclared. See docs/ARCHITECTURE.md §6 and DATA_MODEL.md.
  */
 
-/** Fixed attribute row order for every compare card. RULES.md E1/E2, ARCHITECTURE.md §6.
- * The size wedge sits between price and reviews — that position is PRD §8's whole point. */
-export const ATTRIBUTE_ROWS = [
-  { key: "image", minH: 200 },
-  { key: "identity", minH: 56 }, // brand + title
-  { key: "price", minH: 56 }, // +4px over the bare price line — headroom for a leader chip
-  { key: "rating", minH: 40 }, // +4px over the bare rating pill — same reason
-  { key: "size", minH: 76 }, // the wedge
-  { key: "fit", minH: 40 },
-  { key: "material", minH: 40 },
-  { key: "reviews", minH: 132 },
-  { key: "actions", minH: 96 }, // pinned, always visible without scrolling
-] as const;
-
-export type AttributeRowKey = (typeof ATTRIBUTE_ROWS)[number]["key"];
-
 /** RULES.md C1, DATA_MODEL.md — below this review count, no LLM call, honest empty state. */
 export const REVIEW_THRESHOLD = 8;
 
