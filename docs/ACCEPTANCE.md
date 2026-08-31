@@ -84,7 +84,7 @@ demonstrates the live-update mechanic.
 | 5.5 | No LLM request is made for a below-threshold SKU | auto — intercept `/api/summarize` and assert the SKU is absent from the payload |
 | 5.6 | With `GEMINI_API_KEY` unset, every card still shows a summary and no error UI | auto — run the suite once with the key stripped |
 | 5.7 | Summary row shows a skeleton, never a layout-shifting spinner | manual |
-| 5.8 | p95 time-to-summary under 3s warm | manual — measure across 10 deck opens |
+| 5.8 | ~~p95 time-to-summary under 3s warm~~ — **not met on the current model, DECISIONS.md D10**: `gemini-3.6-flash` (replacing the retired `gemini-2.0-flash` this target was set against) "thinks" by default for this task and observed 20–40s for a cold/uncached call in production. The *cached* path (a SKU already summarized this session) is still instant. Recorded honestly rather than quietly edited to look met — the fallback-first design means a slow live call is invisible to the shopper regardless. | manual — measure across 10 deck opens |
 
 ## R6 — Actions · `tests/e2e/r6-actions.spec.ts`
 

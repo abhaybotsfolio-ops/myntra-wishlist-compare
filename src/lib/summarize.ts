@@ -169,48 +169,6 @@ async function summarizeWithLLM(
   return fallbackSummary(sku, reviews.length);
 }
 
-// TEMPORARY, for src/app/api/debug-gemini/route.ts only — runs the exact
-// real prompt/schema/validation path against real review data and returns
-// full diagnostics instead of silently falling back, so a live failure can
-// be seen instead of guessed at. Delete alongside the debug route.
-export async function debugSummarizeAttempt(sku: string, reviews: Review[]) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const product = getProduct(sku);
-  if (!apiKey || !product) return { error: "missing apiKey or product", hasKey: !!apiKey, hasProduct: !!product };
-
-  const sample = sampleReviews(reviews, SAMPLE_CAP);
-  const negShare = reviews.filter((r) => r.rating <= 3).length / reviews.length;
-  const userPrompt = buildUserPrompt(product, sample);
-
-  let raw: unknown;
-  try {
-    raw = await callGemini(SYSTEM_PROMPT, userPrompt, apiKey);
-  } catch (e) {
-    return { step: "callGemini threw", error: e instanceof Error ? e.message : String(e) };
-  }
-
-  const parsed = RawThemesSchema.safeParse(raw);
-  if (!parsed.success) {
-    return { step: "zod parse failed", raw, zodError: parsed.error.issues };
-  }
-
-  const themes = parsed.data.themes;
-  const valid = themesAreValid(themes, reviews.length);
-  const hasNeg = themes.some((t) => t.sentiment !== "positive");
-  const negCheckPassed = !(negShare >= 0.2 && !hasNeg);
-
-  return {
-    step: "complete",
-    themes,
-    themesAreValid: valid,
-    negShare,
-    hasNeg,
-    negCheckPassed,
-    wouldSucceed: valid && negCheckPassed,
-    themeLengths: themes.map((t) => ({ label: t.label, labelLen: t.label.length, detailLen: t.detail.length })),
-  };
-}
-
 export async function resolveSummary(sku: string, reviews: Review[]): Promise<Summary> {
   if (reviews.length < REVIEW_THRESHOLD) {
     return insufficientSummary(sku, reviews.length); // RULES C1 — no LLM call, ever

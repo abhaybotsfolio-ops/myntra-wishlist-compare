@@ -421,38 +421,68 @@ none of them PRD-silence judgement calls.
   place when the event fires, which is what actually demonstrates "this isn't a static page,"
   just without the interruption. `docs/ACCEPTANCE.md` 4.7 updated to match.
 
-## D10 — Live Gemini deployment debugging: two real, unrelated causes, found by adding a temporary diagnostic endpoint rather than guessing
+## D10 — Live Gemini deployment debugging: four real, stacked causes, found by adding a temporary diagnostic endpoint rather than guessing
 
 Not a judgement call — a debugging log, kept because the method is worth recording along with
 the result. After deploying (D8/D9) and adding `GEMINI_API_KEY` on Vercel, `/api/summarize`
 kept returning `source: "fallback"` in production with zero server-side errors logged, which
-made the two real causes underneath it genuinely ambiguous from the outside — the fallback
-path is deliberately silent and indistinguishable-by-design from a working-but-unused key
-(RULES: "nothing in the UI announces a failure"). Rather than keep guessing across several
-rounds of "check the Vercel dashboard," a temporary route,
-`src/app/api/debug-gemini/route.ts`, was added and deployed — it reports whether
-`process.env.GEMINI_API_KEY` is present (boolean/length only, never the value) and, if so,
-makes one real Gemini call and returns Gemini's own raw HTTP status and body. This turned two
-rounds of back-and-forth into two direct, conclusive answers:
+made the causes underneath it genuinely ambiguous from the outside — the fallback path is
+deliberately silent and indistinguishable-by-design from a working-but-unused key (RULES:
+"nothing in the UI announces a failure"). Rather than keep guessing across rounds of "check the
+Vercel dashboard," a temporary route, `src/app/api/debug-gemini/route.ts`, was added, deployed,
+and progressively deepened as each layer was peeled back — first reporting whether
+`process.env.GEMINI_API_KEY` was present at all, then replicating `summarize.ts`'s exact
+request shape, then finally calling its real internal functions directly against a real SKU's
+real reviews (bypassing `resolveSummary`'s cache) so each failure could be seen, not guessed
+at. Four real, independent causes stacked on top of each other:
 
 1. **`hasKey: false`.** The key had been added under Vercel's **Development** environment
    (Vercel's current dashboard splits Production/Preview/Development into separate
    environment-scoped variable sets, not one list with checkboxes), not Production — so the
    live deployment's runtime never saw it at all, regardless of how many times it was
    redeployed. Fixed by adding the same variable under the Production environment specifically.
-2. **`hasKey: true`, but a live 404 from Gemini itself**: `"This model models/gemini-2.0-flash
-   is no longer available... use models/gemini-3.6-flash."` Google retired the model this
-   project was built against sometime after the original build. `lib/summarize.ts`'s
-   `GEMINI_MODEL` constant (and the now-deleted diagnostic route, and every doc that named the
-   model — `CLAUDE.md`'s stack table, `README.md`'s Stack section, the `review-summarizer`
-   skill) updated to `gemini-3.6-flash` — confirmed against the API's own error message, not
-   guessed. `DECISIONS.md` D0 (the original Groq→Gemini choice) is left as-is since it's an
-   accurate record of that decision at the time it was made; this entry is the update, not a
-   rewrite of history.
+2. **A live 404 from Gemini itself**: `"This model models/gemini-2.0-flash is no longer
+   available... use models/gemini-3.6-flash."` Google retired the model this project was built
+   against sometime after the original build. `lib/summarize.ts`'s `GEMINI_MODEL` constant (and
+   every doc that named the model — `CLAUDE.md`'s stack table, `README.md`'s Stack section, the
+   `review-summarizer` skill) updated to `gemini-3.6-flash` — confirmed against the API's own
+   error message, not guessed.
+3. **A real timeout.** `gemini-3.6-flash` "thinks" (extended internal reasoning) by default for
+   this task — its response carries a `thoughtSignature` even for a short extractive job — and
+   real calls routinely took 20–40s, well past the original `SUMMARY_TIMEOUT_MS` (6000ms, tuned
+   for 2.0-flash) and even a first bumped value (15000ms) that happened to exactly match the
+   API route's own `maxDuration = 15`, so the two were racing the same platform kill instead of
+   this code's own honest fallback ever winning. `thinkingConfig.thinkingBudget: 0` was tried to
+   disable the reasoning outright but this model rejects that value (400 INVALID_ARGUMENT,
+   confirmed live) — unlike some Gemini generations, this one doesn't support turning thinking
+   off for this tier. Fixed by giving it real room instead: `maxDuration` on
+   `/api/summarize` raised to 45s, `SUMMARY_TIMEOUT_MS` to 35000ms, with real margin between
+   the two so this code's own timeout — not a raw platform kill — is always what fires if
+   Gemini genuinely doesn't answer in time.
+4. **A stale in-memory cache, not a bug** — `resolveSummary`'s module-scope cache (keyed
+   `${sku}:${reviewCount}`, intentional: ARCHITECTURE §2, a user swiping back and forth across a
+   deck must not trigger repeat LLM calls) had already cached a `fallback` result for the exact
+   SKUs used while diagnosing causes 1–3, on the same warm function instance, from before any of
+   those fixes landed. Once fixed, that SKU kept returning the old cached fallback on that same
+   warm instance even though a fresh attempt would now succeed — confirmed by testing a SKU
+   that had never been queried in the session, which correctly returned `source: "llm"`
+   immediately. Not something to "fix" — the cache is correct, working as designed; it just
+   needed either a fresh SKU or a new deployment (which resets the module scope) to observe the
+   real fix past it.
 
-The diagnostic route was deleted once both were confirmed fixed — it was never part of the
-shipped feature set (RULES F5), and leaving a public, unauthenticated endpoint that triggers a
-real Gemini API call on every hit isn't something to leave running in "production."
+**On `docs/ACCEPTANCE.md` 5.8** ("p95 time-to-summary under 3s warm"): with `gemini-3.6-flash`'s
+observed 20–40s latency for this task, that target is no longer realistic against a cold
+(uncached) call — it was written against `gemini-2.0-flash`'s materially faster response time.
+The *cached* path (a SKU already summarized once this session) is still instant, since
+`resolveSummary`'s cache is untouched by any of this. 5.8 is left as a known, honestly-recorded
+gap rather than quietly edited to look met — the fallback-first design (RULES: never a
+broken/empty state) means a slow or failed live call is invisible to the shopper either way,
+just slower to get the "real" summary than the original spec assumed.
+
+The diagnostic route (and `lib/summarize.ts`'s temporary `debugSummarizeAttempt` export it
+depended on) was deleted once all four were confirmed fixed end-to-end — it was never part of
+the shipped feature set (RULES F5), and leaving a public, unauthenticated endpoint that
+triggers a real Gemini API call on every hit isn't something to leave running in "production."
 
 ## Format for entries below
 
