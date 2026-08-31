@@ -107,7 +107,7 @@ demonstrates the live-update mechanic.
 | # | Check | Method |
 |---|---|---|
 | X.1 | No coupon, discount nudge, notification, or urgency mechanic anywhere | manual — RULES B2 |
-| X.2 | ~~No "winner", "best pick", or recommendation badge anywhere~~ — **superseded, DECISIONS.md D8**: the operator explicitly directed a "Pick for you" card overriding this rule. The leader chips (lowest price / best rated) remain within RULES B3's own parenthetical (a neutral, per-attribute factual marker) and are covered by `tests/e2e/compare-leader-chips.spec.ts`'s "never use ranking/verdict language" check, scoped to exclude the now-approved pick card. | manual — RULES B3, as amended by D8 |
+| X.2 | ~~No "winner", "best pick", or recommendation badge anywhere~~ — **superseded, DECISIONS.md D8/D11**: the operator explicitly directed a "Pick for you" card (D8) and, later, a 5-label leader-chip set including "BEST VALUE" by name (D11) — both explicit overrides of RULES B3, which names "Best value" as its own banned example. LOWEST PRICE/BEST RATED/FASTEST DELIVERY stay within B3's parenthetical (neutral, per-attribute factual markers); BEST VALUE/BEST FIT FOR YOU are the overridden pair. Covered by `tests/e2e/compare-leader-chips.spec.ts`'s "never use ranking/verdict language beyond the labels themselves" check, scoped to exclude the pick card. | manual — RULES B3, as amended by D8/D11 |
 | X.3 | No category other than Shirts and Pants appears in any surface | auto — grep the rendered DOM |
 | X.4 | No `myntassets` or `myntra.com` string in the repo | auto — `grep -ri` in CI script |
 | X.5 | App runs with zero env vars set | auto — build and run clean |

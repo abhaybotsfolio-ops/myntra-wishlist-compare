@@ -239,7 +239,7 @@ export default function ComparePage() {
             swipeCount.current += 1;
           }}
           sizeInfoBySku={sizeInfoBySku}
-          leaderBySku={deckStats.leaderBySku}
+          labelsBySku={deckStats.labelsBySku}
           onUnsave={handleUnsave}
           onRemoveFromCompare={handleRemoveFromCompare}
           onOpenSizeGuide={setSizeGuideSku}

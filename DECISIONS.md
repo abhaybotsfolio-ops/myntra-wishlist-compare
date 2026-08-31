@@ -496,6 +496,56 @@ depended on) was deleted once all causes were confirmed and understood — it wa
 the shipped feature set (RULES F5), and leaving a public, unauthenticated endpoint that
 triggers a real Gemini API call on every hit isn't something to leave running in "production."
 
+## D11 — Five-label leader system (operator-directed), including a second explicit override of RULES B3
+
+The operator supplied a wireframe of a redesigned comparison table and asked to "assign 1-2
+meaningful labels: BEST VALUE / BEST RATED / BEST FIT FOR YOU / LOWEST PRICE / FASTEST DELIVERY.
+This is much easier to understand than a dense matrix." Implemented in full:
+
+**BEST VALUE is a second, explicit override of RULES B3.** B3's own text names "Best value" as
+a banned example ("No automated winner. No 'Best value', no 'Recommended'..."). This isn't the
+same carve-out as D8's "Our pick for you" card (which is a separate, clearly-labeled section);
+BEST VALUE is a per-card chip sitting alongside the already-approved LOWEST PRICE/BEST RATED
+chips. Treated as an extension of the D8 override rather than a new question to stop and ask
+about, since the operator named this exact banned term explicitly, in the same session where
+they already overrode this rule once. Computed honestly: `rating / price`, highest wins — a
+real ratio, not a guess.
+
+**BEST FIT FOR YOU deliberately does *not* read the `fit` field** (Slim/Regular/Relaxed/
+Tapered) — there is no stored shopper preference for garment fit anywhere in the data model,
+and inventing one to answer "best fit for you" would be exactly the kind of fabrication RULES
+C3 polices for sizing. Instead it reuses the one real personalization signal that exists: the
+shopper's AI-recommended size and its live availability (`src/lib/size.ts`). A card qualifies
+when its recommended size is available or low-stock; the label is suppressed if every card in
+the deck qualifies (same "some-but-not-all" rule as every other leader chip — a fact true of
+the whole deck asserts nothing).
+
+**FASTEST DELIVERY** parses the existing `deliveryEstimate` string ("Delivery by Tue, Sep 2")
+into a comparable (month, day) rank rather than adding a new raw date field to the schema —
+the seed window never spans more than a week, so there's no year-wrap risk, and it avoids
+hardcoding an anchor year into comparison logic that would go stale as the seed regenerates.
+
+**Cap of 2 labels per card, by priority.** A card can genuinely qualify for more than two
+labels at once (e.g. cheapest *and* best-rated *and* best value). Capping at 2, in the
+operator's own listed priority order (BEST VALUE, BEST RATED, BEST FIT FOR YOU, LOWEST PRICE,
+FASTEST DELIVERY), keeps the row scannable per the stated goal ("much easier to understand than
+a dense matrix") without hiding which specific facts drove the two shown.
+
+**What was left out of the wireframe, on purpose:**
+- **"BUY NOW"** — the wireframe's button label. CLAUDE.md §2/§5 is explicit: no real payments,
+  no real checkout, ever. Left as "Add to Bag", which is what the button actually does.
+- **A "RETURNS" row** — not in the Product schema (same call as D8's DetailsTable decision);
+  the operator's message didn't re-request it specifically, and inventing a policy value per
+  SKU would be the same fabrication D8 already declined.
+- **A full "Sizes: XS S M L XL" list** — the wireframe's own "Don't show: Sizes... / Show:
+  Your size: M..." annotation asked for exactly this: the offered-sizes row in `DetailsTable`
+  was removed; the shopper's own AI-recommended size (`SizeLine`, `AtAGlanceTable`'s "AI size"
+  row) is the fact that actually answers "can I wear this," which is what stayed.
+- **Rebuilding the whole table to match the wireframe's exact row set/pixel layout** — the
+  operator's opening sentence framed the ask as being about the labels ("assign 1-2 meaningful
+  labels ... this is much easier to understand than a dense matrix"), with the wireframe as
+  supporting context, not a request to re-lay out Fit/Fabric/Delivery from scratch.
+
 ## Format for entries below
 
 Each entry: what the spec left open, the decision, and why it's the more-honest-to-the-user

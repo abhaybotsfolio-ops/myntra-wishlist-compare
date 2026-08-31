@@ -7,7 +7,7 @@ import { motion, useMotionValue, animate, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight, Heart, X } from "lucide-react";
 import type { Product } from "../../../data/schema.ts";
 import type { AvailabilityStatus, SizeRecommendation } from "@/lib/size";
-import type { LeaderInfo } from "@/lib/compareStats";
+import type { LeaderLabel } from "@/lib/compareStats";
 import { track } from "@/lib/track";
 import { PriceLine } from "@/components/ui/PriceLine";
 import { RatingPill } from "@/components/ui/RatingPill";
@@ -28,7 +28,7 @@ interface CompareCarouselProps {
   index: number;
   onIndexChange: (i: number) => void;
   sizeInfoBySku: Record<string, SizeInfo>;
-  leaderBySku: Record<string, LeaderInfo>;
+  labelsBySku: Record<string, LeaderLabel[]>;
   onUnsave: (sku: string) => void;
   onRemoveFromCompare: (sku: string) => void;
   onOpenSizeGuide: (sku: string) => void;
@@ -49,7 +49,7 @@ export function CompareCarousel({
   index,
   onIndexChange,
   sizeInfoBySku,
-  leaderBySku,
+  labelsBySku,
   onUnsave,
   onRemoveFromCompare,
   onOpenSizeGuide,
@@ -131,7 +131,7 @@ export function CompareCarousel({
           onDragEnd={handleDragEnd}
         >
           {products.map((product, i) => {
-            const leader = leaderBySku[product.id];
+            const labels = labelsBySku[product.id] ?? [];
             const sizeInfo = sizeInfoBySku[product.id];
             return (
               <div
@@ -160,8 +160,9 @@ export function CompareCarousel({
                     </span>
                   </button>
                   <div className="flex flex-1 flex-col items-center gap-0.5 whitespace-nowrap pt-1">
-                    {leader?.lowestPrice && <LeaderChip>Lowest price</LeaderChip>}
-                    {leader?.highestRated && <LeaderChip>Best rated</LeaderChip>}
+                    {labels.map((label) => (
+                      <LeaderChip key={label}>{label}</LeaderChip>
+                    ))}
                   </div>
                   <button
                     type="button"
