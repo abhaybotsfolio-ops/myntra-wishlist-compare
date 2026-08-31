@@ -17,8 +17,14 @@ export const INVENTORY_POLL_MS = 8000;
 /** DATA_MODEL.md — units at or below this render "low stock", not "available". */
 export const LOW_STOCK_MAX_UNITS = 2;
 
-/** review-summarizer skill — per-SKU Gemini call timeout before falling back. */
-export const SUMMARY_TIMEOUT_MS = 6000;
+/** review-summarizer skill — per-SKU Gemini call timeout before falling back.
+ * Was 6000ms, tuned for gemini-2.0-flash; confirmed live (DECISIONS.md D10)
+ * that gemini-3.6-flash — the model that replaced it after Google retired
+ * 2.0-flash — routinely exceeds 6s on this prompt (it returns a
+ * `thoughtSignature`, i.e. it does internal reasoning before answering,
+ * which the older model didn't), aborting every real call before it could
+ * ever complete. */
+export const SUMMARY_TIMEOUT_MS = 15000;
 
 /** Categories that exist anywhere in the UI. RULES B1 — nothing else, ever. */
 export const CATEGORIES = ["shirts", "pants"] as const;
