@@ -62,6 +62,20 @@ test.describe("R4 — size wedge", () => {
     await expect(page.getByText("Unavailable in your size (M)")).toBeVisible();
   });
 
+  test("4.6b a Notify me button appears only when the recommended size is unavailable, and confirms the request", async ({ page }) => {
+    // Roadster (unavailable in M) is the default-active card 1; Highlander
+    // has no size signal at all, so it must not show a Notify button.
+    await selectByLabel(page, ["Roadster Slim Fit Cotton Casual Shirt", "Highlander"]);
+    const notifyBtn = page.getByRole("button", { name: /Notify me when M is back/ });
+    await expect(notifyBtn).toBeVisible();
+    await notifyBtn.click();
+    await expect(page.getByText(/We'll notify you when .* size M is back/)).toBeVisible();
+
+    // The no-signal card never fabricates a size opinion, so it has no
+    // recommended size and therefore nothing to be notified about.
+    await expect(page.getByRole("button", { name: /Notify me/ })).toHaveCount(1);
+  });
+
   test("4.7 stock change mid-session updates the size line in place", async ({ page }) => {
     // HERE&NOW -> S is available at the start; rewrite deckStartedAt into
     // the past so the resolved event (real server-side resolution against

@@ -191,6 +191,8 @@ export default function ComparePage() {
   function handleNotify(sku: string) {
     const product = PRODUCTS_BY_ID.get(sku);
     const rec = recommendationBySku[sku];
+    const status = sizeInfoBySku[sku]?.status ?? "unavailable";
+    track("size_wedge_tapped", { sku, status });
     showToast(`We'll notify you when ${product?.brand ?? "this item"}'s size ${rec?.size ?? ""} is back`.trim());
   }
 

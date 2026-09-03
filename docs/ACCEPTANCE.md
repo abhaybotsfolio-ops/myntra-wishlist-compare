@@ -70,6 +70,7 @@ demonstrates the live-update mechanic.
 | 4.4 | A brand with no size signal renders the general size guide, not a guessed size | auto — assert the no-signal SKU shows the guide and no size badge |
 | 4.5 | An item unavailable in the user's size **stays in the deck**, readable, not filtered | auto |
 | 4.6 | Add to Bag is disabled with a stated reason when the recommended size is unavailable | auto |
+| 4.6b | Unavailable-in-size cards show a "Notify me when {size} is back" button (not shown when there's no recommendation at all); tapping it confirms in a toast | auto |
 | 4.7 | **Stock change mid-session updates the size line in place** | auto — advance clock past the 15s scripted event, assert the in-place status transition (no toast — see D9) |
 | 4.8 | Polling pauses when the tab is hidden | manual — devtools network panel |
 
